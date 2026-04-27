@@ -38,9 +38,20 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 .fbtn:active{border-bottom-width:2px;transform:translateY(3px);box-shadow:0 2px 0 var(--felt-d)}
 .lstats{display:flex;gap:28px;margin-top:28px;z-index:2}.ls b{display:block;font-size:18px;color:#fff}.ls span{font-size:11px;color:rgba(255,255,255,.35)}
 /* Map */
-.ms2{flex:1;overflow:hidden;-webkit-overflow-scrolling:touch}.mi{position:relative;width:100%;height:calc(100vh - 120px);background:url('tiers/poker_level_1.png') center center/contain no-repeat #000}
+.ms2{flex:1;overflow:hidden;-webkit-overflow-scrolling:touch}.mi{position:relative;width:100%;height:100%;background:url('tiers/poker_level_1.png') center center/contain no-repeat #000}
 .msec{text-align:center;margin:20px 0 14px}.msec-i{font-size:22px;display:block;margin-bottom:2px}.msec-l{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--felt)}
-.nd{display:flex;flex-direction:column;align-items:center;z-index:2;cursor:pointer;transition:.15s}.nd:active{transform:scale(.92)}.nd.r{margin-right:-60px}.nd.l{margin-left:-60px}
+.nd{display:none}.nd:active{transform:scale(.92)}
+.map-node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:.2s;z-index:5;transform:translate(-50%,-50%)}.map-node:active{transform:translate(-50%,-50%) scale(.85)}
+.map-node .node-label{font-size:7px;font-weight:800;white-space:nowrap;color:rgba(255,255,255,0.7);text-shadow:0 1px 3px rgba(0,0,0,0.9);text-align:center;letter-spacing:0.5px}
+.map-node .node-check,.map-node .node-lock,.map-node .node-sym{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;transition:.2s}
+.map-node.completed .node-check{background:linear-gradient(145deg,#4ade80,#16a34a);color:#fff;box-shadow:0 0 10px rgba(34,197,94,0.5)}
+.map-node.completed .node-label{color:#4ade80}
+.map-node.available .node-sym{background:rgba(255,255,255,0.9);color:#1a1a2e;box-shadow:0 0 12px rgba(255,255,255,0.4);animation:pulse 2s infinite}
+.map-node.available .node-label{color:#fff}
+.map-node.locked .node-lock{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.2);font-size:9px}
+.map-node.locked .node-label{color:rgba(255,255,255,0.15)}
+.map-node.locked{cursor:default}
+@keyframes pulse{0%,100%{box-shadow:0 0 6px rgba(255,255,255,0.2)}50%{box-shadow:0 0 16px rgba(255,255,255,0.5)}}
 /* Poker chip nodes */
 .nc{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0;font-weight:900;position:relative;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.15),inset 0 2px 4px rgba(255,255,255,.25);transition:transform .2s;letter-spacing:-1px}
 .nc .sym{font-size:22px;font-family:'Nunito',sans-serif;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
@@ -149,7 +160,6 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 </div></div>
 <div id="home" class="screen felt-bg">
 <div class="top-bar"><div class="tb" onclick="showStreak()"><span>🔥</span><span id="tS">0</span></div><div class="tb"><span class="pokerchip pokerchip-g">$</span><span id="tC">250</span></div><div class="tb"><span class="pokerchip pokerchip-r">♥</span><span id="tL">5</span></div></div>
-<div class="mb"><span class="mf2">🃏</span>Ready to hit the tables? Pick a lesson!</div>
 <div class="ms2"><div class="mi" id="mn"></div></div>
 <div class="bnav">
 <div class="nb act" onclick="switchTab('learn')"><div class="nb-i">🂠</div><div class="nb-l">Learn</div></div>
@@ -377,49 +387,71 @@ const L={
 };
 
 const MAP=[
-{s:"Buddy's Basement",ls:[
+{s:'',ls:[
+{id:'card-values',ic:'A',n:'Card Values',c:'f',q:8},
+{id:'hand-rankings',ic:'K',n:'Hand Rankings',c:'g',q:10,crown:true},
+{id:'pot-odds',ic:'%',n:'Pot Odds',c:'b',q:10},
+{id:'position',ic:'P',n:'Position Play',c:'p',q:8},
+{id:'betting-basics',ic:'$',n:'Betting Basics',c:'o',q:8},
+{id:'bluffing',ic:'?',n:'Bluffing 101',c:'rd',q:8},
+{id:'ranges',ic:'R',n:'Range Reading',c:'b',q:8},
+{id:'preflop',ic:'PF',n:'Pre-flop Strategy',c:'f',q:8},
+{id:'c-bet',ic:'CB',n:'C-Bets',c:'rd',q:8},
+{id:'bet-sizing',ic:'BS',n:'Bet Sizing',c:'o',q:8},
+{id:'gto-basics',ic:'G',n:'GTO Strategy',c:'p',q:8},
+{id:'tournament',ic:'T',n:'Tournament vs Cash',c:'g',q:8},
+{id:'adv-bluff',ic:'AB',n:'Advanced Bluffing',c:'rd',q:8},
+{id:'exploit',ic:'EX',n:'Exploitative Play',c:'b',q:8},
+{id:'psychology',ic:'PS',n:'Psychology',c:'b',q:8,crown:true},
+{id:'final-table',ic:'FT',n:'The Final Table',c:'p',q:10,crown:true},
 ]},
 ];
 
-const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','gto-basics':'Δ','tournament':'★','tells':'◉','advanced-strategy':'♠'};
+const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','preflop':'PF','c-bet':'CB','bet-sizing':'BS','gto-basics':'Δ','tournament':'★','adv-bluff':'?!','exploit':'EX','psychology':'🧠','final-table':'♠'};
 
 function buildMap(){
-  const el=document.getElementById('mn');let h='',totalIdx=0;
-  const offsets=[0,-55,50,-35,45,-60,55,-25,10,-50,60,-30,40,-55,20];
+  const el=document.getElementById('mn');let h='';
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  MAP.forEach(sec=>{
-    h+=`<div class="msec"><span class="msec-i">${sec.s.split(' ')[0]}</span><div class="msec-l">${sec.s.split(' ').slice(1).join(' ')}</div></div>`;
+  // 4 tables, 4 lessons each, positioned on the poker room map
+  const positions=[
+    {x:28,y:33},{x:50,y:31},{x:72,y:33},{x:50,y:38},
+    {x:28,y:46},{x:50,y:44},{x:72,y:46},{x:50,y:51},
+    {x:28,y:57},{x:50,y:55},{x:72,y:57},{x:50,y:61},
+    {x:28,y:69},{x:50,y:67},{x:72,y:69},{x:50,y:73},
+  ];
+  
+  let posIdx=0;
+  MAP.forEach((sec,si)=>{
     sec.ls.forEach((l,li)=>{
       const dn=G.completed[l.id];
-      const chipCls=dn?'nc done-node':'nc f';
-      const off=offsets[totalIdx%offsets.length];
+      const prevDone=posIdx===0||G.completed[allLessons[posIdx-1]?.id];
+      const locked=!prevDone&&!dn;
+      const pos=positions[posIdx]||{x:50,y:50};
       const sym=SYMBOLS[l.id]||'?';
       
-      // Road segment BEFORE this node
-      if(totalIdx>0){
-        const prevOff=offsets[(totalIdx-1)%offsets.length];
-        const midX=240;
-        const px=midX+prevOff, cx=midX+off;
-        const done=allLessons[totalIdx-1]&&G.completed[allLessons[totalIdx-1].id];
-        const roadColor=done?'#4ade80':'#d4d0c8';
-        const edgeColor=done?'#16a34a':'#c4bfb4';
-        
-        h+=`<div style="height:48px;width:100%;position:relative">`;
-        h+=`<svg style="width:100%;height:100%;overflow:visible" viewBox="0 0 480 48" preserveAspectRatio="none">`;
-        // Big vertical S-curve — mostly vertical with horizontal shift
-        const cpY1=8, cpY2=40;
-        h+=`<path d="M${px},0 C${px},${cpY1} ${cx},${cpY2} ${cx},48" stroke="${roadColor}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
-        h+=`<path d="M${px},0 C${px},${cpY1} ${cx},${cpY2} ${cx},48" stroke="${done?'#15803d':'#b0a898'}" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="3 5"/>`;
-        h+=`</svg></div>`;
+      let nodeClass;
+      if(dn) nodeClass='map-node completed';
+      else if(prevDone) nodeClass='map-node available';
+      else nodeClass='map-node locked';
+      
+      // Connector from previous
+      if(posIdx>0){
+        const prevPos=positions[posIdx-1];
+        const prevDone2=G.completed[allLessons[posIdx-1]?.id];
+        const lineColor=prevDone2?'rgba(74,222,128,0.5)':'rgba(255,255,255,0.08)';
+        h+=`<svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="${prevPos.x}" y1="${prevPos.y}" x2="${pos.x}" y2="${pos.y}" stroke="${lineColor}" stroke-width="0.3" ${prevDone2?'':'stroke-dasharray="1 1"'} opacity="0.4"/></svg>`;
       }
       
-      h+=`<div class="nd" style="transform:translateX(${off}px)" onclick="startL('${l.id}')">`;
-      h+=`<div class="${chipCls}">${dn?'<span class="sym">✓</span>':`<span class="sym">${sym}</span>`}${l.crown&&!dn?'<span class="cr">👑</span>':''}</div>`;
-      h+=`<div class="nl">${l.n}</div></div>`;
+      h+=`<div class="${nodeClass}" style="left:${pos.x}%;top:${pos.y}%" ${!locked?`onclick="startL('${l.id}')"`:''}>`;
+      if(dn) h+=`<span class="node-check">✓</span>`;
+      else if(locked) h+=`<span class="node-lock">🔒</span>`;
+      else h+=`<span class="node-sym">${sym}</span>`;
+      h+=`<span class="node-label">${l.n}</span>`;
+      h+=`</div>`;
       
-      totalIdx++;
+      posIdx++;
     });
   });
   el.innerHTML=h;
