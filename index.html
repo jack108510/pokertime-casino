@@ -38,7 +38,7 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 .fbtn:active{border-bottom-width:2px;transform:translateY(3px);box-shadow:0 2px 0 var(--felt-d)}
 .lstats{display:flex;gap:28px;margin-top:28px;z-index:2}.ls b{display:block;font-size:18px;color:#fff}.ls span{font-size:11px;color:rgba(255,255,255,.35)}
 /* Map */
-.ms2{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}.mi{display:flex;flex-direction:column;align-items:center;padding:0;background:#0a0806}
+.ms2{flex:1;overflow:hidden;-webkit-overflow-scrolling:touch}.mi{position:relative;width:100%;height:calc(100vh - 120px);background:url('tiers/poker_level_1.png') center center/cover no-repeat #000}.mi::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.4) 100%);pointer-events:none;z-index:1}
 .msec{text-align:center;margin:20px 0 14px}.msec-i{font-size:22px;display:block;margin-bottom:2px}.msec-l{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--felt)}
 .nd{display:flex;flex-direction:column;align-items:center;z-index:2;cursor:pointer;transition:.15s}.nd:active{transform:scale(.92)}
 /* Poker chip nodes */
@@ -406,83 +406,49 @@ const MAP=[
 {s:'Buddy\'s Basement',bg:'tiers/poker_level_1.png',ls:[
 {id:'card-values',ic:'A',n:'Card Values',c:'f',q:8},
 {id:'hand-rankings',ic:'K',n:'Hand Rankings',c:'g',q:10,crown:true},
-]},
-{s:'Local Bar',bg:'tiers/poker_level_2.png',ls:[
 {id:'pot-odds',ic:'%',n:'Pot Odds',c:'b',q:10},
 {id:'position',ic:'P',n:'Position Play',c:'p',q:8},
-]},
-{s:'Poker Room',bg:'tiers/poker_level_3.png',ls:[
 {id:'betting-basics',ic:'$',n:'Betting Basics',c:'o',q:8},
 {id:'bluffing',ic:'?',n:'Bluffing 101',c:'rd',q:8},
-]},
-{s:'Regulars Room',bg:'tiers/poker_level_4.png',ls:[
 {id:'ranges',ic:'R',n:'Range Reading',c:'b',q:8},
 {id:'preflop',ic:'PF',n:'Pre-flop Strategy',c:'f',q:8},
-]},
-{s:'Private Games',bg:'tiers/poker_level_5.png',ls:[
 {id:'c-bet',ic:'CB',n:'Continuation Bets',c:'rd',q:8},
 {id:'bet-sizing',ic:'BS',n:'Bet Sizing',c:'o',q:8},
-]},
-{s:'Underground',bg:'tiers/poker_level_6.png',ls:[
 {id:'gto-basics',ic:'G',n:'GTO Strategy',c:'p',q:8},
 {id:'tournament',ic:'T',n:'Tournament vs Cash',c:'g',q:8},
-]},
-{s:'High Limit Room',bg:'tiers/poker_level_7.png',ls:[
 {id:'adv-bluff',ic:'AB',n:'Advanced Bluffing',c:'rd',q:8},
 {id:'exploit',ic:'EX',n:'Exploitative Play',c:'b',q:8},
-]},
-{s:'Final Table',bg:'tiers/poker_level_8.png',ls:[
 {id:'psychology',ic:'PS',n:'High Roller Psychology',c:'b',q:8,crown:true},
 {id:'final-table',ic:'FT',n:'The Final Table',c:'p',q:10,crown:true},
 ]},
 ];
 
-const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','preflop':'PF','c-bet':'CB','bet-sizing':'BS','gto-basics':'Δ','tournament':'★','adv-bluff':'?!','exploit':'EX','multiway':'MW','icm':'💎','psychology':'🧠','mixed':'🎲','heads-up':'⚔','final-table':'♠'};
+const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','preflop':'PF','c-bet':'CB','bet-sizing':'BS','gto-basics':'Δ','tournament':'★','adv-bluff':'?!','exploit':'EX','psychology':'🧠','final-table':'♠'};
 
 function buildMap(){
   const el=document.getElementById('mn');let h='';
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
+  // Single room map - 4 poker tables with 4 lessons each
+  const positions=[
+    // Table 1 (top, blue rug) - around 35% from top
+    {x:30,y:34},{x:50,y:32},{x:70,y:34},{x:50,y:38},
+    // Table 2 (red rug) - around 47%
+    {x:30,y:46},{x:50,y:44},{x:70,y:46},{x:50,y:50},
+    // Table 3 (yellow rug) - around 58%
+    {x:30,y:57},{x:50,y:55},{x:70,y:57},{x:50,y:61},
+    // Table 4 (bottom, wood floor) - around 69%
+    {x:30,y:68},{x:50,y:66},{x:70,y:68},{x:50,y:72},
+  ];
+  
   let posIdx=0;
   MAP.forEach((sec,si)=>{
-    const prevTierDone = si===0 || sec.ls.every((l,i)=> true) && (function(){
-      // All lessons in previous tiers are done
-      let check=true;
-      for(let t=0;t<si;t++){
-        for(const l of MAP[t].ls){
-          if(!G.completed[l.id]){check=false;break}
-        }
-        if(!check)break;
-      }
-      return check;
-    })();
-    
-    // Tier section with background
-    h+=`<div class="tier-section" style="background-image:url('${sec.bg}')">`;
-    h+=`<div class="tier-overlay">`;
-    h+=`<div class="tier-label">${sec.s}</div>`;
-    
-    // Two lesson nodes positioned on the table
-    const layouts = [
-      [{x:35,y:50},{x:65,y:50}],  // side by side
-      [{x:30,y:45},{x:70,y:55}],  // offset left-right
-      [{x:40,y:42},{x:60,y:58}],  // slight diagonal
-      [{x:35,y:55},{x:65,y:45}],  // crossed
-      [{x:30,y:48},{x:70,y:48}],  // wide
-      [{x:38,y:52},{x:62,y:48}],  // close
-      [{x:33,y:45},{x:67,y:55}],  // offset
-      [{x:40,y:55},{x:60,y:45}],  // v-shape
-      [{x:35,y:48},{x:65,y:52}],  // slight offset
-      [{x:50,y:42},{x:50,y:58}],  // stacked center
-    ];
-    const layout = layouts[si] || layouts[0];
-    
     sec.ls.forEach((l,li)=>{
       const dn=G.completed[l.id];
       const prevDone=posIdx===0||G.completed[allLessons[posIdx-1]?.id];
       const locked=!prevDone&&!dn;
-      const pos=layout[li];
+      const pos=positions[posIdx]||{x:50,y:50};
       const sym=SYMBOLS[l.id]||'?';
       
       let nodeClass;
@@ -490,22 +456,12 @@ function buildMap(){
       else if(prevDone) nodeClass='map-node available';
       else nodeClass='map-node locked';
       
-      // Connector line between the two nodes in a tier
-      if(li===1){
-        const prev=layout[0];
-        const prevDone2=G.completed[sec.ls[0]?.id];
-        const lineColor=prevDone2?'rgba(74,222,128,0.6)':'rgba(255,255,255,0.15)';
-        h+=`<svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="${prev.x}" y1="${prev.y}" x2="${pos.x}" y2="${pos.y}" stroke="${lineColor}" stroke-width="0.4" ${prevDone2?'':'stroke-dasharray="1.5 1.5"'}/></svg>`;
-      }
-      
-      // Connector from previous tier (bottom of prev to top of current)
-      if(si>0 && li===0){
-        // Simple vertical line at top
-        const prevTierLast = MAP[si-1].ls[MAP[si-1].ls.length-1];
-        const prevTierDone2 = G.completed[prevTierLast?.id];
-        if(prevTierDone2){
-          // Already handled by tier styling
-        }
+      // Connector from previous
+      if(posIdx>0){
+        const prevPos=positions[posIdx-1];
+        const prevDone2=G.completed[allLessons[posIdx-1]?.id];
+        const lineColor=prevDone2?'rgba(74,222,128,0.5)':'rgba(255,255,255,0.1)';
+        h+=`<svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="${prevPos.x}" y1="${prevPos.y}" x2="${pos.x}" y2="${pos.y}" stroke="${lineColor}" stroke-width="0.3" ${prevDone2?'':'stroke-dasharray="1 1"'} opacity="0.5"/></svg>`;
       }
       
       h+=`<div class="${nodeClass}" style="left:${pos.x}%;top:${pos.y}%" ${!locked?`onclick="startL('${l.id}')"`:''}>`;
@@ -517,18 +473,6 @@ function buildMap(){
       
       posIdx++;
     });
-    
-    // Lock overlay if tier not unlocked
-    if(!prevTierDone){
-      h+=`<div class="tier-lock">🔒</div>`;
-    }
-    
-    h+=`</div></div>`;  // tier-overlay, tier-section
-    
-    // Connector arrow between tiers
-    if(si < MAP.length-1){
-      h+=`<div class="tier-connector"><svg width="20" height="30" viewBox="0 0 20 30"><path d="M10 0 L10 20 M4 16 L10 22 L16 16" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/></svg></div>`;
-    }
   });
   el.innerHTML=h;
 }
