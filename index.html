@@ -396,14 +396,6 @@ const MAP=[
 {id:'bluffing',ic:'?',n:'Bluffing 101',c:'rd',q:8},
 {id:'ranges',ic:'R',n:'Range Reading',c:'b',q:8},
 {id:'preflop',ic:'PF',n:'Pre-flop Strategy',c:'f',q:8},
-{id:'c-bet',ic:'CB',n:'C-Bets',c:'rd',q:8},
-{id:'bet-sizing',ic:'BS',n:'Bet Sizing',c:'o',q:8},
-{id:'gto-basics',ic:'G',n:'GTO Strategy',c:'p',q:8},
-{id:'tournament',ic:'T',n:'Tournament vs Cash',c:'g',q:8},
-{id:'adv-bluff',ic:'AB',n:'Advanced Bluffing',c:'rd',q:8},
-{id:'exploit',ic:'EX',n:'Exploitative Play',c:'b',q:8},
-{id:'psychology',ic:'PS',n:'Psychology',c:'b',q:8,crown:true},
-{id:'final-table',ic:'FT',n:'The Final Table',c:'p',q:10,crown:true},
 ]},
 ];
 
@@ -414,16 +406,12 @@ function buildMap(){
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  // 4 tables, 4 lessons each - lessons ON the table surfaces
-  // Table 1 (top table, blue rug): center around x:50 y:23
-  // Table 2 (second table, red rug): center around x:50 y:39
-  // Table 3 (third table, yellow rug): center around x:50 y:55
-  // Table 4 (bottom table, wood floor): center around x:50 y:72
+  // 2 tables, 4 lessons each - on the table felt
+  // Table 1 (top, blue rug): centered around y:18-25
+  // Table 2 (red rug): centered around y:37-43
   const positions=[
-    {x:38,y:21},{x:62,y:21},{x:42,y:26},{x:58,y:26},
-    {x:38,y:37},{x:62,y:37},{x:42,y:42},{x:58,y:42},
-    {x:38,y:53},{x:62,y:53},{x:42,y:58},{x:58,y:58},
-    {x:38,y:70},{x:62,y:70},{x:42,y:75},{x:58,y:75},
+    {x:38,y:17},{x:62,y:17},{x:42,y:23},{x:58,y:23},
+    {x:38,y:36},{x:62,y:36},{x:42,y:42},{x:58,y:42},
   ];
   
   let posIdx=0;
