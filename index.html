@@ -7,10 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--felt:#1a6b3c;--felt-d:#145a30;--gold:#ffd700;--gold-d:#d4a800;--red:#dc2626;--red-d:#b91c1c;--green:#22c55e;--green-d:#16a34a;--blue:#3b82f6;--blue-d:#2563eb;--purple:#a855f7;--orange:#f59e0b;--cream:#faf7f2;--white:#fff;--dark:#1a1a2e;--mid:#555;--gray:#999;--border:#e5ddd0;--card:#fffdf8}
+:root{--felt:#2a6b3c;--felt-d:#1e5530;--gold:#e8c547;--gold-d:#c4a530;--red:#c0392b;--red-d:#a33025;--green:#27ae60;--green-d:#1e8c4d;--blue:#2e86c1;--blue-d:#2471a3;--purple:#8e44ad;--orange:#e67e22;--cream:#f0ebe3;--white:#fff;--dark:#2c2418;--mid:#6b5e4f;--gray:#9e9285;--border:#d5cabb;--card:#f7f3ec}
 body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden}
 .screen{display:none;min-height:100vh;max-width:480px;margin:0 auto;position:relative}.screen.active{display:flex;flex-direction:column}
-.felt-bg{background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px),repeating-linear-gradient(-45deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px),var(--cream)}
+.felt-bg{background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,.01) 2px,rgba(0,0,0,.01) 4px),repeating-linear-gradient(-45deg,transparent,transparent 2px,rgba(0,0,0,.01) 2px,rgba(0,0,0,.01) 4px),var(--cream)}
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:20}
 .tb{display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;cursor:pointer;padding:4px 10px;border-radius:10px}.tb:active{transform:scale(.93)}
 /* Real poker chips */
@@ -25,7 +25,7 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 .nb.act .nb-i{filter:invert(39%) sepia(85%) saturate(500%) hue-rotate(88deg) brightness(95%)}.nb .nb-i{font-size:24px;height:28px;display:flex;align-items:center;justify-content:center;filter:grayscale(1) opacity(.3)}.nb.act .nb-l{color:var(--felt)}
 .nb:active{transform:scale(.9)}.nb-l{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gray)}
 /* Landing */
-.land{min-height:100vh;background:linear-gradient(170deg,#0d1b0e,#1a3a20 30%,#0f2318 60%,var(--cream) 85%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 24px;position:relative;overflow:hidden}
+.land{min-height:100vh;background:linear-gradient(170deg,#1a1208,#2a1f10 30%,#1a150e 60%,var(--cream) 85%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 24px;position:relative;overflow:hidden}
 .land::before{content:'♠ ♥ ♦ ♣';position:absolute;top:8%;left:50%;transform:translateX(-50%);font-size:100px;letter-spacing:20px;opacity:.06}
 .land::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(transparent,var(--cream))}
 .mf{font-size:100px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4));animation:fl 3s ease-in-out infinite;position:relative;z-index:2}
