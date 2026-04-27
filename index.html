@@ -42,8 +42,8 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 .msec{text-align:center;margin:20px 0 14px}.msec-i{font-size:22px;display:block;margin-bottom:2px}.msec-l{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--felt)}
 .nd{display:none}.nd:active{transform:scale(.92)}
 .map-node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:.2s;z-index:5;transform:translate(-50%,-50%)}.map-node:active{transform:translate(-50%,-50%) scale(.85)}
-.map-node .node-label{font-size:7px;font-weight:800;white-space:nowrap;color:rgba(255,255,255,0.7);text-shadow:0 1px 3px rgba(0,0,0,0.9);text-align:center;letter-spacing:0.5px}
-.map-node .node-check,.map-node .node-lock,.map-node .node-sym{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;transition:.2s}
+.map-node .node-label{font-size:8px;font-weight:700;white-space:nowrap;color:rgba(255,255,255,0.8);text-shadow:0 1px 3px rgba(0,0,0,0.9);text-align:center;letter-spacing:0.5px}
+.map-node .node-check,.map-node .node-lock,.map-node .node-sym{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;transition:.2s}
 .map-node.completed .node-check{background:linear-gradient(145deg,#4ade80,#16a34a);color:#fff;box-shadow:0 0 10px rgba(34,197,94,0.5)}
 .map-node.completed .node-label{color:#4ade80}
 .map-node.available .node-sym{background:rgba(255,255,255,0.9);color:#1a1a2e;box-shadow:0 0 12px rgba(255,255,255,0.4);animation:pulse 2s infinite}
@@ -147,10 +147,12 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 <body>
 <div id="xpt" class="xpt"></div>
 <div id="landing" class="screen active"><div class="land">
-<div style="z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:40px;gap:16px">
-<h1 style="font-size:38px;font-weight:900;color:#e8e0d4;letter-spacing:4px;margin:0;text-align:center">POKER<span style="color:#e8c547">TIME</span></h1>
-<p style="font-size:13px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin:0">Everyone starts at the basement</p>
-<button class="fbtn" onclick="startApp()" style="margin-top:12px;padding:14px 40px;font-size:14px;letter-spacing:2px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8e0d4;border-radius:10px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .3s">TAKE YOUR SEAT</button>
+<div style="z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;gap:0">
+<div style="font-size:120px;opacity:.08;position:absolute;top:15%;letter-spacing:20px">♠♥♦♣</div>
+<div style="width:1px;height:60px;background:linear-gradient(transparent,rgba(232,197,71,0.3),transparent);margin-bottom:32px"></div>
+<h1 style="font-size:36px;font-weight:900;color:#e8e0d4;letter-spacing:6px;margin:0;text-align:center">POKER<span style="color:#e8c547">TIME</span></h1>
+<p style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:3px;text-transform:uppercase;margin:12px 0 40px">Everyone starts at the basement</p>
+<button onclick="startApp()" style="padding:16px 52px;font-size:13px;letter-spacing:3px;background:transparent;border:1px solid rgba(232,197,71,0.3);color:#e8c547;border-radius:50px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .3s;text-transform:uppercase">Take Your Seat</button>
 </div>
 </div></div>
 <div class="po" id="dp"><div class="pc2">
