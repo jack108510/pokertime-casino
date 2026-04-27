@@ -38,7 +38,7 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 .fbtn:active{border-bottom-width:2px;transform:translateY(3px);box-shadow:0 2px 0 var(--felt-d)}
 .lstats{display:flex;gap:28px;margin-top:28px;z-index:2}.ls b{display:block;font-size:18px;color:#fff}.ls span{font-size:11px;color:rgba(255,255,255,.35)}
 /* Map */
-.ms2{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}.mi{display:flex;flex-direction:column;align-items:center;padding:28px 0 90px}
+.ms2{flex:1;overflow:hidden}.mi{position:relative;width:100%;height:calc(100vh - 120px);background:url('basement-bg.jpg') center center/contain no-repeat #000}
 .msec{text-align:center;margin:20px 0 14px}.msec-i{font-size:22px;display:block;margin-bottom:2px}.msec-l{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--felt)}
 .nd{display:flex;flex-direction:column;align-items:center;z-index:2;cursor:pointer;transition:.15s}.nd:active{transform:scale(.92)}
 /* Poker chip nodes */
@@ -56,8 +56,8 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 /* Map nodes — small dots on the background */
 .map-node{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:.2s;z-index:5}
 .map-node:active{transform:translateY(-50%) scale(.9)}
-.map-node .node-label{font-size:9px;font-weight:800;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:center}
-.map-node .node-check,.map-node .node-lock,.map-node .node-sym{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;transition:.2s}
+.map-node .node-label{font-size:7px;font-weight:800;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.map-node .node-check,.map-node .node-lock,.map-node .node-sym{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;transition:.2s}
 .map-node.completed .node-check{background:linear-gradient(145deg,#4ade80,#16a34a);color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.4)}
 .map-node.completed .node-label{color:#4ade80}
 .map-node.available .node-sym{background:rgba(255,255,255,0.9);color:#1a1a2e;box-shadow:0 0 12px rgba(255,255,255,0.3);animation:pulse 2s infinite}
@@ -69,9 +69,8 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 .map-row{position:relative}
 
 /* Basement background for the whole map */
-.ms2{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:url('basement-bg.jpg') center top/cover no-repeat #0a0a0a}
-.ms2::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,3,1,0.6);pointer-events:none;z-index:1}
-.mi{position:relative;z-index:2}
+/* vignette overlay */.mi::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.7) 100%);pointer-events:none;z-index:1}
+/* Tier header */.msec{position:absolute;z-index:5;text-align:center;pointer-events:none}.msec .msec-l{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:3px;text-shadow:0 1px 6px rgba(0,0,0,0.8)}
 .cn{height:8px;width:100%;position:relative}.cl{display:none}
 /* Candy crush style winding path */
 .path-wrap{position:relative;width:100%;height:16px;margin:4px 0}
@@ -146,7 +145,7 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 .cmg{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:20px}
 .xpt{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:250;background:var(--gold);color:var(--dark);padding:8px 20px;border-radius:20px;font-weight:800;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2);display:none;animation:ti .3s}
 .xpt.sh{display:block}@keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.ptc{position:fixed;pointer-events:none;z-index:300;font-size:14px;font-weight:900;color:var(--gold);animation:pu .8s forwards}
+.ptc{position:fixed;pointer-events:none;z-index:300;font-size:10px;font-weight:900;color:var(--gold);animation:pu .8s forwards}
 @keyframes pu{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px) scale(.5)}}
 .sbg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;display:none}.sbg.sh{display:block}
 .spp{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;display:none;text-align:center;animation:pi .4s}
@@ -397,116 +396,62 @@ const L={
 };
 
 const MAP=[
-{s:'🪵 The Basement',ls:[
-{id:'card-values',ic:'🃏',n:'Card Values',c:'f',q:8},
-{id:'hand-rankings',ic:'🏆',n:'Hand Rankings',c:'g',q:10,crown:true},
-{id:'pot-odds',ic:'💰',n:'Pot Odds',c:'b',q:10},
-{id:'position',ic:'🧭',n:'Position Play',c:'p',q:8},
-]},
-{s:'🏪 Local Card Room',ls:[
-{id:'betting-basics',ic:'💵',n:'Betting Basics',c:'o',q:8},
-{id:'bluffing',ic:'🎭',n:'Bluffing 101',c:'rd',q:8},
-{id:'ranges',ic:'📊',n:'Range Reading',c:'b',q:8},
-{id:'preflop',ic:'🎯',n:'Pre-flop Strategy',c:'f',q:8},
-]},
-{s:'🌃 Downtown Casino',ls:[
-{id:'c-bet',ic:'🔥',n:'Continuation Bets',c:'rd',q:8},
-{id:'bet-sizing',ic:'📏',n:'Bet Sizing',c:'o',q:8},
-{id:'gto-basics',ic:'🧠',n:'GTO Strategy',c:'p',q:8},
-{id:'tournament',ic:'🏆',n:'Tournament vs Cash',c:'g',q:8},
-{id:'tells',ic:'👁',n:'Reading Tells',c:'f',q:8},
-]},
-{s:'🎰 Vegas Strip',ls:[
-{id:'adv-bluff',ic:'🎭',n:'Advanced Bluffing',c:'rd',q:8},
-{id:'exploit',ic:'⚡',n:'Exploitative Play',c:'b',q:8},
-{id:'multiway',ic:'🌀',n:'Multi-way Pots',c:'p',q:8},
-{id:'icm',ic:'💎',n:'ICM Pressure',c:'g',q:10,crown:true},
-]},
-{s:'👑 Macau · Monte Carlo',ls:[
-{id:'psychology',ic:'🧘',n:'High Roller Psychology',c:'b',q:8},
-{id:'mixed',ic:'🎲',n:'Mixed Games',c:'o',q:8},
-{id:'heads-up',ic:'⚔',n:'Heads-Up Mastery',c:'rd',q:8},
-{id:'final-table',ic:'♠',n:'The Final Table',c:'p',q:10,crown:true},
+{s:'The Basement',ls:[
+{id:'card-values',ic:'A',n:'Card Values',c:'f',q:8},
+{id:'hand-rankings',ic:'K',n:'Hand Rankings',c:'g',q:10,crown:true},
+{id:'pot-odds',ic:'%',n:'Pot Odds',c:'b',q:10},
+{id:'position',ic:'P',n:'Position Play',c:'p',q:8},
 ]},
 ];
 
-const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','preflop':'PF','c-bet':'CB','bet-sizing':'BS','gto-basics':'Δ','tournament':'★','tells':'◉','adv-bluff':'?!','exploit':'EX','multiway':'MW','icm':'💎','psychology':'🧠','mixed':' HORSE','heads-up':'HU','final-table':'♠'};
+const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎'};
 
 function buildMap(){
-  const el=document.getElementById('mn');let h='',totalIdx=0;
-  // Position each lesson at specific points on the background image
-  // Using percentage-based positions for responsiveness
-  const positions=[
-    // Basement
-    {x:30,y:15},{x:65,y:28},{x:25,y:42},{x:70,y:55},
-    // Local Card Room  
-    {x:35,y:68},{x:60,y:72},{x:20,y:80},{x:75,y:85},
-    // Downtown Casino
-    {x:45,y:90},{x:70,y:93},{x:25,y:96},{x:55,y:99},{x:40,y:102},
-    // Vegas Strip
-    {x:30,y:108},{x:65,y:112},{x:35,y:117},{x:60,y:122},
-    // Macau / Monte Carlo
-    {x:45,y:128},{x:25,y:133},{x:65,y:138},{x:45,y:143},
-  ];
+  const el=document.getElementById('mn');let h='';
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  // Build one big map with the basement background
-  // Each tier gets a different background section
-  let currentY = 0;
-  const tierBgs = ['basement-bg.jpg','basement-bg.jpg','basement-bg.jpg','basement-bg.jpg','basement-bg.jpg'];
-  const tierColors = ['#c89b3c','#d4a76a','#e84393','#f8d868','#7ef9ff'];
-  const tierBgColors = ['rgba(10,8,4,0.85)','rgba(18,14,10,0.85)','rgba(10,9,20,0.85)','rgba(20,15,24,0.85)','rgba(8,14,22,0.85)'];
+  // Position lessons on the poker tables in the basement image
+  // Left table: Card Values (left edge), Hand Rankings (right edge)
+  // Right table: Pot Odds (left edge), Position Play (right edge)
+  const positions=[
+    {x:22,y:38},   // Card Values — on left table
+    {x:42,y:42},   // Hand Rankings — on left table
+    {x:58,y:55},   // Pot Odds — on right table
+    {x:78,y:50},   // Position Play — on right table
+  ];
   
-  let posIdx = 0;
+  let posIdx=0;
   MAP.forEach((sec,si)=>{
     // Tier header
-    const emoji = sec.s.split(' ')[0];
-    const name = sec.s.split(' ').slice(1).join(' ');
-    h+=`<div class="msec" style="margin-top:${si===0?'20px':'40px'}"><span class="msec-i">${emoji}</span><div class="msec-l" style="color:${tierColors[si]}">${name}</div></div>`;
+    h+=`<div class="msec"><div class="msec-l" style="color:#c89b3c;letter-spacing:3px">${sec.s}</div></div>`;
     
     sec.ls.forEach((l,li)=>{
-      const dn = G.completed[l.id];
-      // Check if previous lesson is completed (for unlock logic)
-      const prevDone = posIdx === 0 || G.completed[allLessons[posIdx-1]?.id];
-      const locked = !prevDone && !dn;
+      const dn=G.completed[l.id];
+      const prevDone=posIdx===0||G.completed[allLessons[posIdx-1]?.id];
+      const locked=!prevDone&&!dn;
+      const pos=positions[posIdx]||{x:50,y:50};
+      const sym=SYMBOLS[l.id]||'?';
       
-      const pos = positions[posIdx] || {x:50,y:posIdx*7};
-      const sym = SYMBOLS[l.id]||'?';
-      
-      // Determine node state
-      let nodeClass, nodeStyle;
-      if(dn){
-        nodeClass = 'map-node completed';
-        nodeStyle = `left:${pos.x}%;`;
-      } else if(prevDone){
-        nodeClass = 'map-node available';
-        nodeStyle = `left:${pos.x}%;`;
-      } else {
-        nodeClass = 'map-node locked';
-        nodeStyle = `left:${pos.x}%;`;
-      }
-      
-      h+=`<div class="map-row" style="position:relative;height:52px;margin:6px 0">`;
+      let nodeClass;
+      if(dn) nodeClass='map-node completed';
+      else if(prevDone) nodeClass='map-node available';
+      else nodeClass='map-node locked';
       
       // Connector line from previous
-      if(posIdx > 0){
-        const prevPos = positions[posIdx-1] || {x:50};
-        const prevDone2 = G.completed[allLessons[posIdx-1]?.id];
-        const lineColor = prevDone2 ? '#4ade80' : '#444';
-        h+=`<svg style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none"><line x1="${prevPos.x}%" y1="0" x2="${pos.x}%" y2="100%" stroke="${lineColor}" stroke-width="2" stroke-dasharray="${prevDone2?'':'4 4'}" opacity="0.5"/></svg>`;
+      if(posIdx>0){
+        const prevPos=positions[posIdx-1];
+        const prevDone2=G.completed[allLessons[posIdx-1]?.id];
+        const lineColor=prevDone2?'#4ade80':'rgba(255,255,255,0.15)';
+        h+=`<svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="${prevPos.x}" y1="${prevPos.y}" x2="${pos.x}" y2="${pos.y}" stroke="${lineColor}" stroke-width="0.5" ${prevDone2?'':'stroke-dasharray="2 2"'} opacity="0.6"/></svg>`;
       }
       
-      h+=`<div class="${nodeClass}" style="${nodeStyle}" ${!locked?`onclick="startL('${l.id}')"`:''}>`;
-      if(dn){
-        h+=`<span class="node-check">✓</span>`;
-      } else if(locked){
-        h+=`<span class="node-lock">🔒</span>`;
-      } else {
-        h+=`<span class="node-sym">${sym}</span>`;
-      }
+      h+=`<div class="${nodeClass}" style="left:${pos.x}%;top:${pos.y}%" ${!locked?`onclick="startL('${l.id}')"`:''}>`;
+      if(dn) h+=`<span class="node-check">✓</span>`;
+      else if(locked) h+=`<span class="node-lock">🔒</span>`;
+      else h+=`<span class="node-sym">${sym}</span>`;
       h+=`<span class="node-label">${l.n}</span>`;
-      h+=`</div></div>`;
+      h+=`</div>`;
       
       posIdx++;
     });
