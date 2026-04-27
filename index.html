@@ -3,14 +3,529 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>PokerTime</title>
+<title>PokerTime — Learn Poker Like a Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#000}
-.map{width:100%;height:100%;background:url('tiers/poker_level_1.png') center center/contain no-repeat #000}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--felt:#1a6b3c;--felt-d:#145a30;--gold:#ffd700;--gold-d:#d4a800;--red:#dc2626;--red-d:#b91c1c;--green:#22c55e;--green-d:#16a34a;--blue:#3b82f6;--blue-d:#2563eb;--purple:#a855f7;--orange:#f59e0b;--cream:#0a0806;--white:#fff;--dark:#e8e0d4;--mid:#8a8078;--gray:#5c564f;--border:#2a2622;--card:#1c1a17}
+body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);overflow-x:hidden}
+.screen{display:none;min-height:100vh;max-width:480px;margin:0 auto;position:relative}.screen.active{display:flex;flex-direction:column}
+.felt-bg{background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px),repeating-linear-gradient(-45deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px),var(--cream)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:20}
+.tb{display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;cursor:pointer;padding:4px 10px;border-radius:10px}.tb:active{transform:scale(.93)}
+/* Real poker chips */
+.pokerchip{display:inline-flex;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;font-weight:900;font-size:8px;position:relative;border:3px dashed rgba(255,255,255,.4);box-shadow:0 2px 0 rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.2)}
+.pokerchip::after{content:'';position:absolute;inset:2px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3)}
+.pokerchip-r{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+.pokerchip-g{background:linear-gradient(135deg,#fbbf24,#d97706);color:#fff}
+.pokerchip-b{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
+.pokerchip-k{background:linear-gradient(135deg,#1a1a2e,#0f172a);color:#fff}
+.bnav{display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--border);position:sticky;bottom:0;z-index:20}
+.nb{display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;padding:4px 16px;transition:.2s}
+.nb.act .nb-i{filter:invert(39%) sepia(85%) saturate(500%) hue-rotate(88deg) brightness(95%)}.nb .nb-i{font-size:24px;height:28px;display:flex;align-items:center;justify-content:center;filter:grayscale(1) opacity(.3)}.nb.act .nb-l{color:var(--felt)}
+.nb:active{transform:scale(.9)}.nb-l{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gray)}
+/* Landing */
+.land{min-height:100vh;background:linear-gradient(170deg,#0d1b0e,#1a3a20 30%,#0f2318 60%,var(--cream) 85%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 24px;position:relative;overflow:hidden}
+.land::before{content:'♠ ♥ ♦ ♣';position:absolute;top:8%;left:50%;transform:translateX(-50%);font-size:100px;letter-spacing:20px;opacity:.06}
+.land::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(transparent,var(--cream))}
+.mf{font-size:100px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4));animation:fl 3s ease-in-out infinite;position:relative;z-index:2}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.msh{width:60px;height:12px;background:rgba(0,0,0,.15);border-radius:50%;margin:8px auto 0;animation:ms 3s ease-in-out infinite}
+@keyframes ms{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.7)}}
+.lt{font-size:40px;font-weight:900;color:#fff;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.3)}.lt span{color:var(--gold)}
+.ltag{font-size:15px;color:rgba(255,255,255,.55);margin:6px 0 28px;z-index:2}
+.fbtn{width:100%;max-width:340px;z-index:2;padding:15px;border:none;border-radius:14px;font-size:16px;font-weight:800;font-family:'Nunito';cursor:pointer;text-transform:uppercase;letter-spacing:.8px;background:var(--felt);color:#fff;border-bottom:5px solid var(--felt-d);box-shadow:0 4px 0 var(--felt-d);overflow:hidden}
+.fbtn:active{border-bottom-width:2px;transform:translateY(3px);box-shadow:0 2px 0 var(--felt-d)}
+.lstats{display:flex;gap:28px;margin-top:28px;z-index:2}.ls b{display:block;font-size:18px;color:#fff}.ls span{font-size:11px;color:rgba(255,255,255,.35)}
+/* Map */
+.ms2{flex:1;overflow:hidden;-webkit-overflow-scrolling:touch}.mi{position:relative;width:100%;height:calc(100vh - 120px);background:url('tiers/poker_level_1.png') center center/contain no-repeat #000}
+.msec{text-align:center;margin:20px 0 14px}.msec-i{font-size:22px;display:block;margin-bottom:2px}.msec-l{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--felt)}
+.nd{display:flex;flex-direction:column;align-items:center;z-index:2;cursor:pointer;transition:.15s}.nd:active{transform:scale(.92)}.nd.r{margin-right:-60px}.nd.l{margin-left:-60px}
+/* Poker chip nodes */
+.nc{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0;font-weight:900;position:relative;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.15),inset 0 2px 4px rgba(255,255,255,.25);transition:transform .2s;letter-spacing:-1px}
+.nc .sym{font-size:22px;font-family:'Nunito',sans-serif;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.nc::before{content:'';position:absolute;inset:4px;border-radius:50%;border:2.5px dashed rgba(255,255,255,.35)}
+.nc::after{content:'';position:absolute;inset:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15)}
+.nc:active{transform:scale(.9) translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.2),0 3px 8px rgba(0,0,0,.15),inset 0 1px 2px rgba(255,255,255,.25)}
+.nc.f{background:linear-gradient(145deg,#2a8a50,#1a6b3c)}.nc.g{background:linear-gradient(145deg,#ffe066,#d4a800)}.nc.b{background:linear-gradient(145deg,#60a5fa,#2563eb)}.nc.p{background:linear-gradient(145deg,#c084fc,#7c3aed)}.nc.o{background:linear-gradient(145deg,#fbbf24,#d97706)}.nc.rd{background:linear-gradient(145deg,#f87171,#dc2626)}
+.nc.lk{background:linear-gradient(145deg,#d1d5db,#9ca3af);color:rgba(255,255,255,.5);opacity:.4;cursor:default}
+.nc.done-node{background:linear-gradient(145deg,#4ade80,#16a34a)!important}
+.nc .cr{position:absolute;top:-10px;right:-6px;font-size:18px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
+.nl{font-size:12px;font-weight:800;margin-top:8px;text-align:center;max-width:100px}.ns{font-size:10px;color:var(--gray);font-weight:600}
+.cn{height:8px;width:100%;position:relative}.cl{display:none}
+/* Candy crush style winding path */
+.path-wrap{position:relative;width:100%;height:16px;margin:4px 0}
+.path-svg{width:100%;height:100%;overflow:visible}
+/* Zigzag path — alternate left/right offset */
+.nd.z0{transform:translateX(0)}.nd.z1{transform:translateX(-40px)}.nd.z2{transform:translateX(40px)}.nd.z3{transform:translateX(-20px)}.nd.z4{transform:translateX(20px)}.nd.z5{transform:translateX(-50px)}.nd.z6{transform:translateX(50px)}.nd.z7{transform:translateX(-30px)}
+.mb{position:relative;background:var(--card);border-radius:16px;padding:12px 16px;margin:0 20px 16px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:13px;font-weight:600;text-align:center;color:var(--mid);border:2px solid var(--border)}
+.mb::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--card)}
+.mb .mf2{font-size:28px;display:block;margin-bottom:4px}
+/* Daily */
+.po{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:24px}.po.sh{display:flex}
+.pc2{background:var(--card);border-radius:20px;padding:28px 24px;text-align:center;max-width:340px;width:100%;animation:pi .3s;border:3px solid var(--border)}
+@keyframes pi{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.pc2 h2{font-size:22px;font-weight:900;margin:8px 0 4px}.pc2 p{font-size:13px;color:var(--mid);margin-bottom:16px}
+.pgi{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;font-weight:700}
+.pgi .pgc{margin-left:auto;width:22px;height:22px;border-radius:50%;border:3px solid var(--border)}.pgi.dn .pgc{background:var(--felt);border-color:var(--felt-d);color:#fff;text-align:center;line-height:18px;font-size:12px}
+/* Lesson */
+.lt2{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:20}
+.lx{font-size:20px;cursor:pointer;color:var(--gray);width:28px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.lbw{flex:1;height:14px;background:var(--border);border-radius:8px;overflow:hidden}.lbf{height:100%;background:linear-gradient(90deg,var(--felt),var(--green));border-radius:8px;transition:width .4s}
+.lcs{display:flex;gap:2px}
+.lb{flex:1;display:flex;flex-direction:column;padding:20px 20px 12px;overflow-y:auto}
+.lpr{font-size:22px;font-weight:900;text-align:center;line-height:1.35;margin-bottom:16px}
+.lsub{font-size:13px;color:var(--gray);text-align:center;margin-bottom:12px;font-weight:600}
+.ct{background:linear-gradient(135deg,#1a6b3c,#22854d);border-radius:16px;padding:14px;margin:6px 0 18px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;border:3px solid rgba(255,255,255,.1);box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 4px 12px rgba(0,0,0,.15)}
+.ch{display:flex;gap:3px}
+.pcd{width:42px;height:60px;background:#fff;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:14px;border:1.5px solid #ddd;box-shadow:0 2px 4px rgba(0,0,0,.15)}.pcd .ps{font-size:12px}.pcd.r{color:#dc2626}.pcd.bk{color:#1a1a2e}
+.vs{font-size:16px;font-weight:900;color:rgba(255,255,255,.7);padding:0 6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{padding:14px 18px;background:var(--card);border:2.5px solid var(--border);border-bottom:5px solid var(--border);border-radius:14px;font-size:15px;font-weight:700;font-family:'Nunito';cursor:pointer;color:var(--dark);text-align:left;transition:.12s}
+.opt:active{border-bottom-width:2px;transform:translateY(3px)}
+.opt.sel{border-color:var(--felt);background:#e8f5e9;border-bottom-color:var(--felt-d)}
+.opt.ok{border-color:var(--green);background:#dcfce7;border-bottom-color:var(--green-d);color:var(--green-d)}
+.opt.no{border-color:var(--red);background:#fee2e2;border-bottom-color:var(--red-d);color:var(--red-d);animation:shk .4s}
+.opt:disabled{cursor:default;pointer-events:none}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.wb{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.wt{padding:10px 16px;background:var(--card);border:2px solid var(--border);border-bottom:4px solid var(--border);border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;user-select:none}
+.wt:active{transform:scale(.95);border-bottom-width:2px}
+.wt.used{opacity:.25;pointer-events:none;border-bottom-width:2px}
+.wt.ok{border-color:var(--green);background:#dcfce7;border-bottom-color:var(--green-d)}
+.wt.no{border-color:var(--red);background:#fee2e2;border-bottom-color:var(--red-d);animation:shk .3s}
+.aa{min-height:52px;background:var(--card);border:2.5px dashed var(--border);border-radius:14px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;transition:.2s}
+.aa.filled{border-style:solid;border-color:var(--felt)}
+.mp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.mp-btn{padding:14px 12px;background:var(--card);border:2.5px solid var(--border);border-bottom:5px solid var(--border);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:.15s;font-family:'Nunito'}
+.mp-btn:active{transform:scale(.96)}
+.mp-btn.sel{border-color:var(--blue);background:#dbeafe;border-bottom-color:var(--blue-d)}
+.mp-btn.matched{border-color:var(--green);background:#dcfce7;border-bottom-color:var(--green-d);opacity:.6;pointer-events:none}
+.mp-btn.wrong{border-color:var(--red);background:#fee2e2;animation:shk .3s}
+.fb2{padding:14px 16px;border-radius:14px;margin-top:14px;display:none;animation:su .25s}
+.fb2.sh{display:flex;align-items:flex-start;gap:10px}
+.fb2.ok{background:#dcfce7}.fb2.no{background:#fee2e2}
+.fb2-i{font-size:28px;flex-shrink:0}.fb2-t{font-size:15px;font-weight:800;margin-bottom:2px}.fb2-p{font-size:12px;color:var(--mid);line-height:1.4}
+@keyframes su{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.lbt{padding:12px 20px 16px;background:var(--card);border-top:2px solid var(--border);position:sticky;bottom:0}
+.gb{width:100%;padding:14px;border:none;border-radius:14px;font-size:16px;font-weight:800;font-family:'Nunito';cursor:pointer;text-transform:uppercase;letter-spacing:.8px;background:var(--felt);color:#fff;border-bottom:5px solid var(--felt-d);box-shadow:0 4px 0 var(--felt-d);transition:.12s}
+.gb:active{border-bottom-width:2px;transform:translateY(3px);box-shadow:0 2px 0 var(--felt-d)}
+.gb:disabled{background:var(--gray);border-bottom-color:#888;box-shadow:0 4px 0 #888;cursor:default}
+.gb.gob{background:var(--green);border-bottom-color:var(--green-d);box-shadow:0 4px 0 var(--green-d)}
+.gb.rob{background:var(--red);border-bottom-color:var(--red-d);box-shadow:0 4px 0 var(--red-d)}
+/* Complete */
+.cmp{align-items:center;justify-content:center;text-align:center;padding:32px 24px;background:linear-gradient(180deg,var(--felt),#1a5c34);color:#fff}
+.cm{font-size:80px;animation:cb .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes cb{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+.ct2{font-size:28px;font-weight:900;margin:8px 0 4px;color:var(--gold)}.csb{font-size:14px;color:rgba(255,255,255,.6);margin-bottom:24px}
+.cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;margin-bottom:20px}
+.cc{background:rgba(255,255,255,.1);padding:14px 8px;border-radius:14px;text-align:center;border:1px solid rgba(255,255,255,.1)}
+.cv{font-size:22px;font-weight:900;color:var(--gold)}.cl2{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase}
+.cbr{width:100%;height:14px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.cbf{height:100%;background:linear-gradient(90deg,var(--gold),#ffed4a);border-radius:8px;transition:width 1s}
+.cmg{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:20px}
+.xpt{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:250;background:var(--gold);color:var(--dark);padding:8px 20px;border-radius:20px;font-weight:800;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2);display:none;animation:ti .3s}
+.xpt.sh{display:block}@keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.ptc{position:fixed;pointer-events:none;z-index:300;font-size:14px;font-weight:900;color:var(--gold);animation:pu .8s forwards}
+@keyframes pu{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px) scale(.5)}}
+.sbg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;display:none}.sbg.sh{display:block}
+.spp{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;display:none;text-align:center;animation:pi .4s}
+.spp.sh{display:block}.spp .spn{font-size:72px;font-weight:900;color:var(--gold);text-shadow:0 4px 0 var(--gold-d)}.spp .spl{font-size:16px;font-weight:800;color:var(--dark)}
 </style>
 </head>
 <body>
-<div class="map"></div>
+<div id="xpt" class="xpt"></div>
+<div id="landing" class="screen active"><div class="land">
+<div style="z-index:2;margin-bottom:12px"><div class="mf">🃏</div><div class="msh"></div></div>
+<h1 class="lt">Poker<span>Time</span></h1><p class="ltag">The free, fun way to learn poker</p>
+<button class="fbtn" onclick="startApp()">DEAL ME IN 🂠</button>
+<p style="margin-top:14px;font-size:13px;color:rgba(255,255,255,.3);z-index:2">Already playing? <span style="color:var(--gold);cursor:pointer;font-weight:700">LOG IN</span></p>
+<div class="lstats"><div class="ls"><b>100K+</b><span>Players</span></div><div class="ls"><b>4.9★</b><span>App Store</span></div><div class="ls"><b>500+</b><span>Drills</span></div></div>
+</div></div>
+<div class="po" id="dp"><div class="pc2">
+<div style="font-size:48px">🪙</div><h2>Daily Hand</h2><p>Complete 1 lesson to build your stack!</p>
+<div><div class="pgi dn"><span>📖</span>Complete 1 lesson<span class="pgc">✓</span></div><div class="pgi"><span>🪙</span>Earn 30 chips<span class="pgc"></span></div><div class="pgi"><span>🔥</span>Keep streak<span class="pgc"></span></div></div>
+<button class="fbtn" style="margin-top:8px" onclick="document.getElementById('dp').classList.remove('sh')">LET'S PLAY!</button>
+</div></div>
+<div id="home" class="screen felt-bg">
+<div class="top-bar"><div class="tb" onclick="showStreak()"><span>🔥</span><span id="tS">0</span></div><div class="tb"><span class="pokerchip pokerchip-g">$</span><span id="tC">250</span></div><div class="tb"><span class="pokerchip pokerchip-r">♥</span><span id="tL">5</span></div></div>
+<div class="mb"><span class="mf2">🃏</span>Ready to hit the tables? Pick a lesson!</div>
+<div class="ms2"><div class="mi" id="mn"></div></div>
+<div class="bnav">
+<div class="nb act" onclick="switchTab('learn')"><div class="nb-i">🂠</div><div class="nb-l">Learn</div></div>
+<div class="nb" onclick="switchTab('practice')"><div class="nb-i">🎯</div><div class="nb-l">Practice</div></div>
+<div class="nb" onclick="switchTab('rank')"><div class="nb-i">🏆</div><div class="nb-l">Rank</div></div>
+<div class="nb" onclick="switchTab('profile')"><div class="nb-i">👤</div><div class="nb-l">Profile</div></div>
+</div></div>
+
+<!-- PRACTICE -->
+<div id="practice" class="screen felt-bg">
+<div class="top-bar"><div class="tb"><span>🎯</span><span>Practice</span></div><div class="tb"><span class="pokerchip pokerchip-g">$</span><span>250</span></div></div>
+<div style="flex:1;padding:20px;overflow-y:auto">
+  <div style="text-align:center;margin-bottom:24px"><div style="font-size:48px;margin-bottom:8px">⚡</div><h2 style="font-size:22px;font-weight:900">Quick Fire</h2><p style="font-size:13px;color:var(--mid);margin-top:4px">Random questions from all lessons</p></div>
+  <div style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px;border:2px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:800">Best Streak</span><span style="font-size:24px;font-weight:900;color:var(--gold)">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:800">Questions Today</span><span style="font-size:24px;font-weight:900;color:var(--felt)">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800">Accuracy</span><span style="font-size:24px;font-weight:900;color:var(--green)">--</span></div>
+  </div>
+  <button class="fbtn" onclick="startPractice()">START PRACTICE 🃏</button>
+  <div style="margin-top:24px"><h3 style="font-size:16px;font-weight:800;margin-bottom:12px">Drill by Topic</h3><div style="display:flex;flex-direction:column;gap:8px" id="drillList"></div></div>
+</div>
+<div class="bnav">
+<div class="nb" onclick="switchTab('learn')"><div class="nb-i">🂠</div><div class="nb-l">Learn</div></div>
+<div class="nb act"><div class="nb-i">🎯</div><div class="nb-l">Practice</div></div>
+<div class="nb" onclick="switchTab('rank')"><div class="nb-i">🏆</div><div class="nb-l">Rank</div></div>
+<div class="nb" onclick="switchTab('profile')"><div class="nb-i">👤</div><div class="nb-l">Profile</div></div>
+</div></div>
+
+<!-- RANK -->
+<div id="rank" class="screen felt-bg">
+<div class="top-bar"><div class="tb"><span>🏆</span><span>Rankings</span></div><div class="tb"><span class="pokerchip pokerchip-g">$</span><span>250</span></div></div>
+<div style="flex:1;padding:20px;overflow-y:auto">
+  <div style="text-align:center;margin-bottom:24px"><div style="font-size:48px;margin-bottom:8px">🏆</div><h2 style="font-size:22px;font-weight:900">Leaderboard</h2></div>
+  <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:16px;border:2px solid var(--border)">
+    <div style="text-align:center;padding:12px;background:linear-gradient(135deg,var(--felt),var(--green));border-radius:12px;margin-bottom:16px">
+      <div style="font-size:13px;color:rgba(255,255,255,.6);font-weight:700">YOUR RANK</div>
+      <div style="font-size:36px;font-weight:900;color:var(--gold)">#42</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.5)">of 100,847 players</div>
+    </div>
+    <div style="display:flex;justify-content:space-around;text-align:center">
+      <div><div style="font-size:20px;font-weight:900;color:var(--gold)" id="rChips">0</div><div style="font-size:10px;font-weight:700;color:var(--gray)">CHIPS</div></div>
+      <div><div style="font-size:20px;font-weight:900;color:var(--green)" id="rLessons">0</div><div style="font-size:10px;font-weight:700;color:var(--gray)">LESSONS</div></div>
+      <div><div style="font-size:20px;font-weight:900;color:var(--orange)">🔥 <span id="rStreak">0</span></div><div style="font-size:10px;font-weight:700;color:var(--gray)">STREAK</div></div>
+    </div>
+  </div>
+  <h3 style="font-size:16px;font-weight:800;margin-bottom:12px">Top Players</h3>
+  <div style="background:var(--card);border-radius:14px;border:2px solid var(--border);overflow:hidden">
+    <div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff8dc"><span style="font-size:20px;margin-right:10px">🥇</span><span style="flex:1;font-weight:700">PokerShark99</span><span style="font-weight:800;color:var(--gold)">12,450</span></div>
+    <div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)"><span style="font-size:20px;margin-right:10px">🥈</span><span style="flex:1;font-weight:700">AceHigh_Pro</span><span style="font-weight:800;color:var(--gray)">11,280</span></div>
+    <div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)"><span style="font-size:20px;margin-right:10px">🥉</span><span style="flex:1;font-weight:700">RiverRat</span><span style="font-weight:800;color:#cd7f32">9,870</span></div>
+    <div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)"><span style="font-size:14px;margin-right:14px;font-weight:800;color:var(--gray);width:20px;text-align:center">4</span><span style="flex:1;font-weight:700">FlushKing</span><span style="font-weight:800">8,340</span></div>
+    <div style="display:flex;align-items:center;padding:12px 16px;background:#e8f5e9"><span style="font-size:14px;margin-right:14px;font-weight:800;color:var(--felt);width:20px;text-align:center">42</span><span style="flex:1;font-weight:800;color:var(--felt)">You 🃏</span><span style="font-weight:800;color:var(--felt)" id="rChips2">0</span></div>
+  </div>
+</div>
+<div class="bnav">
+<div class="nb" onclick="switchTab('learn')"><div class="nb-i">🂠</div><div class="nb-l">Learn</div></div>
+<div class="nb" onclick="switchTab('practice')"><div class="nb-i">🎯</div><div class="nb-l">Practice</div></div>
+<div class="nb act"><div class="nb-i">🏆</div><div class="nb-l">Rank</div></div>
+<div class="nb" onclick="switchTab('profile')"><div class="nb-i">👤</div><div class="nb-l">Profile</div></div>
+</div></div>
+
+<!-- PROFILE -->
+<div id="profile" class="screen felt-bg">
+<div class="top-bar"><div class="tb"><span>👤</span><span>Profile</span></div><div class="tb"><span class="pokerchip pokerchip-g">$</span><span>250</span></div></div>
+<div style="flex:1;padding:20px;overflow-y:auto">
+  <div style="text-align:center;margin-bottom:24px"><div style="font-size:64px;margin-bottom:8px">🃏</div><h2 style="font-size:22px;font-weight:900">Jack Wilde</h2><div style="display:inline-block;background:var(--felt);color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:4px">🐟 Beginner's Table</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+    <div style="background:var(--card);padding:14px;border-radius:14px;text-align:center;border:2px solid var(--border)"><div style="font-size:24px;font-weight:900;color:var(--gold)" id="pChips">0</div><div style="font-size:10px;font-weight:700;color:var(--gray)">CHIPS</div></div>
+    <div style="background:var(--card);padding:14px;border-radius:14px;text-align:center;border:2px solid var(--border)"><div style="font-size:24px;font-weight:900;color:var(--green)" id="pLessons">0</div><div style="font-size:10px;font-weight:700;color:var(--gray)">LESSONS</div></div>
+    <div style="background:var(--card);padding:14px;border-radius:14px;text-align:center;border:2px solid var(--border)"><div style="font-size:24px;font-weight:900;color:var(--orange)">🔥 <span id="pStreak">0</span></div><div style="font-size:10px;font-weight:700;color:var(--gray)">STREAK</div></div>
+  </div>
+  <h3 style="font-size:16px;font-weight:800;margin-bottom:12px">Achievements</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+    <div style="background:var(--card);padding:12px;border-radius:14px;text-align:center;border:2px solid var(--border)"><div style="font-size:28px">🎓</div><div style="font-size:10px;font-weight:700">First Lesson</div></div>
+    <div style="background:var(--card);padding:12px;border-radius:14px;text-align:center;border:2px solid var(--border);opacity:.3"><div style="font-size:28px">🔥</div><div style="font-size:10px;font-weight:700">7-Day Streak</div></div>
+    <div style="background:var(--card);padding:12px;border-radius:14px;text-align:center;border:2px solid var(--border);opacity:.3"><div style="font-size:28px">💯</div><div style="font-size:10px;font-weight:700">Perfect Score</div></div>
+    <div style="background:var(--card);padding:12px;border-radius:14px;text-align:center;border:2px solid var(--border);opacity:.3"><div style="font-size:28px">🦈</div><div style="font-size:10px;font-weight:700">Shark Level</div></div>
+    <div style="background:var(--card);padding:12px;border-radius:14px;text-align:center;border:2px solid var(--border);opacity:.3"><div style="font-size:28px">💰</div><div style="font-size:10px;font-weight:700">1K Chips</div></div>
+    <div style="background:var(--card);padding:12px;border-radius:14px;text-align:center;border:2px solid var(--border);opacity:.3"><div style="font-size:28px">♠</div><div style="font-size:10px;font-weight:700">All Done</div></div>
+  </div>
+  <h3 style="font-size:16px;font-weight:800;margin-bottom:12px">Lesson Progress</h3>
+  <div style="background:var(--card);border-radius:14px;border:2px solid var(--border);padding:16px" id="progressList"></div>
+</div>
+<div class="bnav">
+<div class="nb" onclick="switchTab('learn')"><div class="nb-i">🂠</div><div class="nb-l">Learn</div></div>
+<div class="nb" onclick="switchTab('practice')"><div class="nb-i">🎯</div><div class="nb-l">Practice</div></div>
+<div class="nb" onclick="switchTab('rank')"><div class="nb-i">🏆</div><div class="nb-l">Rank</div></div>
+<div class="nb act"><div class="nb-i">👤</div><div class="nb-l">Profile</div></div>
+</div></div>
+
+<div id="lesson" class="screen">
+<div class="lt2"><div class="lx" onclick="quitL()">✕</div><div class="lbw"><div class="lbf" id="lbar"></div></div><div class="lcs" id="lch"></div></div>
+<div class="lb" id="lbd"></div>
+<div class="fb2" id="lfb"><div class="fb2-i" id="lfi"></div><div><div class="fb2-t" id="lft"></div><div class="fb2-p" id="lfp"></div></div></div>
+<div class="lbt" id="lbtWrap" style="display:none"><button class="gb rob" onclick="nextQ()">CONTINUE</button></div>
+</div>
+<div id="complete" class="screen cmp">
+<div class="cm" id="ce">🃏</div><div class="ct2" id="ctt">Hand Complete!</div><div class="csb" id="csb">Nice work</div>
+<div class="cg"><div class="cc"><div class="cv" id="cx">0</div><div class="cl2">Chips</div></div><div class="cc"><div class="cv" id="ca">0%</div><div class="cl2">Accuracy</div></div><div class="cc"><div class="cv" id="ctm">0s</div><div class="cl2">Time</div></div></div>
+<div class="cbr"><div class="cbf" id="cbrf" style="width:0%"></div></div>
+<div class="cmg" id="cmsg"></div>
+<button class="fbtn" style="max-width:340px" onclick="finishL()">NEXT HAND</button>
+</div>
+<div class="sbg" id="sbg" onclick="closeStreak()"></div>
+<div class="spp" id="spp"><div style="font-size:48px;margin-bottom:4px">🔥</div><div class="spn" id="spn">0</div><div class="spl">DAY STREAK</div></div>
+<script>
+const G={xp:0,lives:3,streak:0,chips:250,q:0,correct:0,sel:null,done:false,t0:0,lesson:null,completed:{},mSel:null,mMatched:[]};
+const L={
+'card-values':[
+  {t:'mc',p:'Which card ranks highest in poker?',o:['King','Ace','Queen'],a:1,ok:'Ace is the king of the hill!',no:'Ace beats everything.'},
+  {t:'tf',p:'True or False: All four suits are equal in value.',a:true,ok:'All suits are equal!',no:'No suit beats another.'},
+  {t:'ord',p:'Order LOWEST to HIGHEST:',items:['10','Jack','Queen','King'],ok:'10, J, Q, K — correct!',no:'Ascending: 2,3,4,5,6,7,8,9,10,J,Q,K,A'},
+  {t:'mc',p:'How many cards in a standard deck?',o:['48','52','54'],a:1,ok:'52 = 13 ranks × 4 suits.',no:'Standard deck = 52 cards.'},
+  {t:'wb',p:'The highest card is the ___',bank:['King','Ace','Queen','Jack'],answer:['Ace'],ok:'Ace is the boss!',no:'Ace = highest card.'},
+  {t:'mc',p:'What is a "kicker"?',o:['Tiebreaker card','A type of bet','The dealer button'],a:0,ok:'Kicker breaks ties when hands are equal!',no:'Kicker = highest unpaired card that breaks ties.'},
+  {t:'tf',p:'True or False: A Jack beats a Queen.',a:false,ok:'Queen > Jack. J is lower.',no:'Queen ranks higher than Jack!'},
+  {t:'wb',p:'The ___ card is the lowest in poker',bank:['Two','Three','Ace'],answer:['Two'],ok:'Two is the lowest rank!',no:'Two = lowest card in poker.'},
+],
+'hand-rankings':[
+  {t:'mc',p:'Which hand is stronger?',d:'vs',h:[[{v:'A',s:'♠',c:'bk'},{v:'A',s:'♥',c:'r'},{v:'K',s:'♦',c:'r'},{v:'K',s:'♣',c:'bk'},{v:'7',s:'♠',c:'bk'}],[{v:'K',s:'♠',c:'bk'},{v:'K',s:'♥',c:'r'},{v:'Q',s:'♦',c:'r'},{v:'J',s:'♣',c:'bk'},{v:'10',s:'♠',c:'bk'}]],o:['Two Pair: Aces & Kings','Two Pair: Kings & Queens'],a:0,ok:'Aces beat Kings!',no:'Higher top pair wins.'},
+  {t:'match',p:'Match hand to ranking:',pairs:[['Royal Flush','#1 Best'],['Full House','#4'],['Two Pair','#8'],['High Card','#10']],ok:'You know the rankings!',no:'RF>SF>4K>FH>FL>ST>3K>2P>1P>HC'},
+  {t:'mc',p:'What hand is this?',d:'1',h:[{v:'5',s:'♥',c:'r'},{v:'6',s:'♥',c:'r'},{v:'7',s:'♥',c:'r'},{v:'8',s:'♥',c:'r'},{v:'9',s:'♥',c:'r'}],o:['Flush','Straight','Straight Flush'],a:2,ok:'Straight Flush!',no:'Same suit + consecutive = Straight Flush.'},
+  {t:'ord',p:'WEAKEST to STRONGEST:',items:['One Pair','Flush','Four of a Kind'],ok:'Pair < Flush < Quads!',no:'Pair < Flush < Four of a Kind'},
+  {t:'mc',p:'What hand is this?',d:'1',h:[{v:'A',s:'♠',c:'bk'},{v:'K',s:'♠',c:'bk'},{v:'Q',s:'♠',c:'bk'},{v:'J',s:'♠',c:'bk'},{v:'10',s:'♠',c:'bk'}],o:['Straight Flush','Royal Flush','Ace Flush'],a:1,ok:'ROYAL FLUSH! ~1 in 30,000.',no:'A-K-Q-J-10 same suit = Royal Flush!'},
+  {t:'wb',p:'Three of a Kind beats ___',bank:['Two Pair','Straight','Flush'],answer:['Two Pair'],ok:'3K > 2P!',no:'3-of-a-Kind beats Two Pair.'},
+  {t:'mc',p:'Which is stronger: Straight or Flush?',o:['Straight','Flush','They\'re equal'],a:1,ok:'Flush beats Straight!',no:'Flush > Straight in hand rankings.'},
+  {t:'tf',p:'True or False: A Full House beats a Flush.',a:true,ok:'Full House > Flush!',no:'Full House is ranked above Flush.'},
+  {t:'mc',p:'Two players both have a pair of Aces. Who wins?',o:['The one with the higher kicker','They split the pot','The one in position'],a:0,ok:'Higher kicker wins the tie!',no:'Kicker breaks ties on equal pairs.'},
+  {t:'ord',p:'Rank WEAKEST to STRONGEST:',items:['Three of a Kind','Straight','Royal Flush'],ok:'3K < Straight < Royal Flush!',no:'3K < Straight < Royal Flush'},
+],
+'pot-odds':[
+  {t:'mc',p:'Pot $100. Opponent bets $50. Pot odds?',o:['2:1','3:1','4:1'],a:1,ok:'$150:$50 = 3:1.',no:'After bet: $150 pot, $50 call = 3:1.'},
+  {t:'tf',p:'True or False: 9 outs ≈ 35% to hit on the flop.',a:true,ok:'Rule of 4: 9 × 4 ≈ 36%.',no:'9 outs × 4 ≈ 36% flop-to-river.'},
+  {t:'mc',p:'Flush draw, pot odds 3:1. Call or fold?',o:['Call — profitable!','Fold'],a:0,ok:'~35% chance, need 25%. Snap call!',no:'You hit ~35% and need 25%.'},
+  {t:'wb',p:'Multiply outs by ___ for flop-to-river %',bank:['2','4','6'],answer:['4'],ok:'Rule of 4!',no:'Outs × 4 = flop-to-river %.'},
+  {t:'mc',p:'Pot $200, call $100. Equity needed?',o:['25%','33%','50%'],a:1,ok:'$100/$300 = 33%.',no:'Risk $100 to win $300 = 33%.'},
+  {t:'mc',p:'What is "implied odds"?',o:['Future money you\'ll win if you hit','Current pot odds','The rake'],a:0,ok:'Implied odds = extra you\'ll win on later streets!',no:'Implied odds include future betting, not just current pot.'},
+  {t:'tf',p:'True or False: Pot odds > win % = profitable call.',a:true,ok:'Better odds = print money.',no:'When pot offers better odds, calling is correct.'},
+  {t:'mc',p:'You have a gutshot (4 outs). What % to hit by river?',o:['~8%','~16%','~32%'],a:1,ok:'4 × 4 = ~16% flop-to-river.',no:'Rule of 4: 4 outs × 4 = ~16%.'},
+  {t:'wb',p:'Pot odds compare the ___ to the call amount',bank:['pot size','your stack','the blinds'],answer:['pot size'],ok:'Pot size vs call = pot odds!',no:'Pot odds = pot size ÷ call amount.'},
+  {t:'ord',p:'Decision process order:',items:['Calculate pot odds','Estimate your equity','Compare and decide'],ok:'Odds → Equity → Decision!',no:'Calculate odds, estimate equity, then decide.'},
+],
+'position':[
+  {t:'mc',p:'"Position" means:',o:['Seat relative to dealer','Stack size','Card suit'],a:0,ok:'Position = when you act.',no:'Position = seat order.'},
+  {t:'match',p:'Match positions:',pairs:[['Button','Best position'],['UTG','Worst position'],['Big Blind','Forced bet']],ok:'Position mastery!',no:'Button=best, UTG=worst.'},
+  {t:'tf',p:'True or False: Play more hands in late position.',a:true,ok:'Late = more info = wider range!',no:'~40% late vs ~10% early.'},
+  {t:'mc',p:'UTG stands for:',o:['Under the Gun','Up to Go','Ultimate Texas Gambler'],a:0,ok:'UTG = first to act!',no:'Under the Gun.'},
+  {t:'wb',p:'The best position is the ___',bank:['Button','UTG','Big Blind'],answer:['Button'],ok:'Button = last to act!',no:'Button is the best.'},
+  {t:'mc',p:'"Cut-off" is:',o:['Seat right of the button','Seat left of UTG','The dealer'],a:0,ok:'Cut-off = 2nd best position!',no:'Cut-off is right before the button.'},
+  {t:'tf',p:'True or False: Early position requires a stronger range.',a:true,ok:'First to act = need premium hands!',no:'EP = tight range required.'},
+  {t:'mc',p:'Blinds are forced bets by:',o:['SB and BB positions','Button and UTG','Anyone who wants'],a:0,ok:'Small Blind + Big Blind post forced bets.',no:'Blinds are posted by SB and BB.'},
+],
+'betting-basics':[
+  {t:'mc',p:'"Limping" means:',o:['Calling the big blind','Raising','Folding'],a:0,ok:'Limp = call minimum. Usually weak.',no:'Limping = calling the BB.'},
+  {t:'tf',p:'True or False: A 3-bet is a re-raise.',a:true,ok:'3-bet = raise of a raise!',no:'3-bet = third bet in sequence.'},
+  {t:'mc',p:'A c-bet (continuation bet) is:',o:['Betting flop after preflop raise','Calling twice','All-in'],a:0,ok:'C-bet = follow up your raise.',no:'C-bet = betting flop after raising preflop.'},
+  {t:'ord',p:'Betting rounds in order:',items:['Preflop','Flop','Turn','River'],ok:'Preflop → Flop → Turn → River!',no:'PF, Flop, Turn, River.'},
+  {t:'mc',p:'"Donk bet" means:',o:['Betting into the preflop raiser from OOP','A huge overbet','Going all-in'],a:0,ok:'Donk = leading into the raiser out of position.',no:'Donk bet = betting into the raiser from out of position.'},
+  {t:'wb',p:'A "squeeze" is a ___ after a caller',bank:['3-bet','call','fold'],answer:['3-bet'],ok:'Squeeze = 3-bet after someone calls!',no:'Squeeze = 3-betting after a cold caller.'},
+  {t:'tf',p:'True or False: "Overbet" means betting more than the pot.',a:true,ok:'Overbet > pot size = polarized play.',no:'Overbet = larger than the current pot.'},
+  {t:'mc',p:'Minimum raise preflop is:',o:['2× the previous raise','Always 2× BB','Any amount'],a:0,ok:'Min raise = 2× previous bet/raise.',no:'Must be at least 2× the previous raise.'},
+],
+'bluffing':[
+  {t:'mc',p:'A bluff is betting with:',o:['A weak hand hoping for folds','Best hand','Medium hand'],a:0,ok:'Bluff = weak hand looking strong.',no:'Bluffing = betting with likely-not-best.'},
+  {t:'tf',p:'True or False: Semi-bluffs have outs to improve.',a:true,ok:'Semi-bluff = weak but can hit!',no:'Semi-bluff has outs to improve.'},
+  {t:'mc',p:'Best time to bluff?',o:['Weak opponent + scary board','Good hand','Every hand'],a:0,ok:'Target weak ranges on scary boards.',no:'Bluff when board favors your range.'},
+  {t:'wb',p:'A "float" is calling to ___ later',bank:['bluff','fold','raise'],answer:['bluff'],ok:'Float = call now, bluff later.',no:'Float = delayed bluff.'},
+  {t:'match',p:'Match bluff types:',pairs:[['Pure bluff','No outs'],['Semi-bluff','Has outs'],['Float','Delayed bluff']],ok:'Bluff vocabulary locked!',no:'Pure=no outs, Semi=has outs, Float=delayed.'},
+  {t:'mc',p:'"Triple barrel" means:',o:['Bluffing all three postflop streets','Raising three times','Calling three times'],a:0,ok:'Triple barrel = betting flop, turn, AND river as a bluff.',no:'Triple barrel = bluffing three streets in a row.'},
+  {t:'tf',p:'True or False: Bluff more against calling stations.',a:false,ok:'False! Calling stations don\'t fold = bad bluff targets.',no:'Never bluff calling stations — they don\'t fold!'},
+  {t:'mc',p:'A "scare card" is:',o:['A card that completes obvious draws','A high card','Any river card'],a:0,ok:'Scare card = completes flush/straight draws = great bluff opportunity.',no:'Scare cards complete draws and make folding easier for opponents.'},
+],
+'ranges':[
+  {t:'mc',p:'A "range" is:',o:['All possible hands a player could have','A bet size','Board cards'],a:0,ok:'Range = set of possible holdings.',no:'Range = every hand based on actions.'},
+  {t:'tf',p:'True or False: UTG raisers have tight ranges.',a:true,ok:'First to act = need premiums.',no:'UTG = tight, strong range.'},
+  {t:'mc',p:'"Polarized range" means:',o:['Strong or bluffing — nothing medium','All medium hands','Balanced'],a:0,ok:'Polarized = nuts or air.',no:'Polarized = strong + bluffs.'},
+  {t:'wb',p:'Narrowing a range means ___ possibilities',bank:['eliminating','adding','ignoring'],answer:['eliminating'],ok:'Each action narrows range!',no:'Actions eliminate hands from range.'},
+  {t:'mc',p:'"Range advantage" means:',o:['Your range connects with board better','More chips','Better position'],a:0,ok:'Your combos hit harder.',no:'More strong combos in your range.'},
+  {t:'mc',p:'"Merged range" means:',o:['Mix of strong, medium, and weak hands','Only strong hands','Only bluffs'],a:0,ok:'Merged = everything blended together, not polarized.',no:'Merged = includes medium-strength hands.'},
+  {t:'tf',p:'True or False: A river check-raise is usually polarized.',a:true,ok:'River check-raise = nuts or bluff!',no:'River XR = almost always polarized.'},
+  {t:'mc',p:'"Cap" in RCP means:',o:['The top of someone\'s range','A bet limit','Their worst hand'],a:0,ok:'Cap = best hand in their range for a given line.',no:'Range cap = the strongest hand they can have.'},
+],
+'gto-basics':[
+  {t:'mc',p:'GTO stands for:',o:['Game Theory Optimal','Go To Offense','General Tournament Order'],a:0,ok:'GTO = unexploitable.',no:'Game Theory Optimal.'},
+  {t:'tf',p:'True or False: GTO is always the most profitable strategy.',a:false,ok:'False! Exploitative > GTO vs weak players.',no:'GTO = baseline. Exploit weak opponents for more profit.'},
+  {t:'mc',p:'In GTO you should:',o:['Mix bluffs and value at specific ratios','Only bet good hands','Always raise'],a:0,ok:'GTO = balanced bluff:value ratios.',no:'Balanced play = mixing bluffs and value.'},
+  {t:'wb',p:'MDF = Minimum ___ Frequency',bank:['Defense','Bet','Fold'],answer:['Defense'],ok:'MDF = minimum defense frequency.',no:'Minimum Defense Frequency.'},
+  {t:'mc',p:'"Nash Equilibrium" in poker means:',o:['No player can improve by changing strategy alone','Everyone goes all-in','The house always wins'],a:0,ok:'Nash = nobody benefits from deviating.',no:'Nash Equilibrium = no unilateral improvement possible.'},
+  {t:'tf',p:'True or False: GTO uses mixed strategies (sometimes call, sometimes fold same hand).',a:true,ok:'Mixed strategies = randomizing with same hand!',no:'GTO mixes calls and folds with the same hand at certain frequencies.'},
+  {t:'mc',p:'"Blockers" in GTO:',o:['Cards you hold that reduce opponent\'s strong combos','Betting big','Seat position'],a:0,ok:'Blockers remove combos from their range!',no:'Holding a card = they can\'t have it.'},
+  {t:'ord',p:'GTO approach order:',items:['Calculate ranges','Find equilibrium frequencies','Apply mixed strategy'],ok:'Ranges → Equilibrium → Mixed!',no:'Calculate ranges, find equilibrium, apply.'},
+],
+'tournament':[
+  {t:'mc',p:'ICM stands for:',o:['Independent Chip Model','International Card Master','In-Chip Multiplier'],a:0,ok:'ICM = chips → $ value.',no:'Independent Chip Model.'},
+  {t:'tf',p:'True or False: Play tighter on the bubble.',a:true,ok:'Bubble = survive!',no:'Tight is right near the money.'},
+  {t:'mc',p:'Short stack strategy:',o:['Shove or fold','Play slow','Give up'],a:0,ok:'Short = push/fold, max fold equity.',no:'Push/fold = no postflop play.'},
+  {t:'ord',p:'Tournament stages:',items:['Early: Deep stacks','Middle: Antes start','Bubble: Near money','Final Table'],ok:'Correct progression!',no:'Early → Middle → Bubble → FT.'},
+  {t:'mc',p:'"ICM pressure" means:',o:['The cost of busting vs gaining chips','Physical pressure at the table','Blind pressure'],a:0,ok:'ICM pressure = your bust cost in real $!',no:'ICM pressure = tournament life value.'},
+  {t:'wb',p:'Doubling chips does NOT double your ___',bank:['$EV','stack','position'],answer:['$EV'],ok:'Nonlinear chip values!',no:'Double chips ≠ double $EV.'},
+  {t:'mc',p:'In a satellite, you should:',o:['Play extremely tight to lock up a seat','Play aggressive to accumulate','Play normally'],a:0,ok:'Satellites = survive. You don\'t need chips, you need a seat.',no:'Satellites reward survival, not accumulation.'},
+  {t:'tf',p:'True or False: A bigger stack should bully shorter stacks on the bubble.',a:true,ok:'Big stack = leverage. Short stacks can\'t risk busting!',no:'Big stacks should pressure short stacks near the bubble.'},
+],
+'tells':[
+  {t:'mc',p:'A "tell" is:',o:['A clue about hand strength','A bet type','Table talk'],a:0,ok:'Tells leak information!',no:'Tells = involuntary signals.'},
+  {t:'tf',p:'True or False: Online poker has tells.',a:true,ok:'Timing + sizing = online tells!',no:'Timing and bet sizing are real tells.'},
+  {t:'mc',p:'Quick bet often means:',o:['Strong hand (planned)','Weak hand','Nothing'],a:0,ok:'Fast = already decided = strong.',no:'Quick action = strong hand.'},
+  {t:'match',p:'Match tells:',pairs:[['Quick bet','Strong (planned)'],['Long tank','Genuinely unsure'],['Sizing change','Deviation']],ok:'Reading like a pro!',no:'Quick=strong, Tank=thinking, Change=deviation.'},
+  {t:'wb',p:'"Hollywooding" = fake ___ to mislead',bank:['acting','betting','folding'],answer:['acting'],ok:'Hollywood = fake acting!',no:'Hollywooding = exaggerated acting.'},
+  {t:'mc',p:'"Tank" means:',o:['Thinking a long time before acting','Going all-in','Checking'],a:0,ok:'Tanking = genuinely considering a tough decision.',no:'Tank = long deliberation.'},
+  {t:'tf',p:'True or False: A player who talks a lot during a hand is usually weak.',a:false,ok:'False! Some strong players talk to seem relaxed. Context matters.',no:'Talking isn\'t always weakness — some strong hands talk.'},
+  {t:'mc',p:'"Bet sizing tell" means:',o:['Always betting same amount with different hands','Changing bet size based on hand strength','Betting the minimum'],a:1,ok:'Sizing leaks = betting more with strong, less with weak.',no:'Sizing tells = bet amount reveals hand strength.'},
+],
+'advanced-strategy':[
+  {t:'mc',p:'"Squeeze play" is:',o:['3-betting after a raiser and caller','Calling twice','Folding to a raise'],a:0,ok:'Squeeze = 3-bet with dead money in the pot!',no:'Squeeze = 3-bet when there\'s a caller creating dead money.'},
+  {t:'tf',p:'True or False: "Overbetting" is always a mistake.',a:false,ok:'False! Overbets are powerful with polarized ranges.',no:'Overbets are a legitimate GTO tool.'},
+  {t:'mc',p:'"Slowplaying" (trapping) is best when:',o:['Board is dry and you have the nuts','Board is very wet','You have a medium hand'],a:0,ok:'Slowplay on dry boards where opponents can\'t have much.',no:'Trap on dry boards where draws are unlikely.'},
+  {t:'wb',p:'A "donk bet" leads into the ___',bank:['preflop raiser','big blind','small blind'],answer:['preflop raiser'],ok:'Donk = leading into the raiser!',no:'Donk bet = betting into the preflop raiser.'},
+  {t:'mc',p:'"Block betting" (blocking bet) is:',o:['A small bet to control pot size and see a cheap card','A huge bet','Checking'],a:0,ok:'Block bet = cheap way to see next card.',no:'Small bet to control pot size and avoid facing a big bet.'},
+  {t:'mc',p:'"Iso-raise" means:',o:['Raising to isolate a weak player/limper','Calling a raise','Going all-in'],a:0,ok:'Iso = raise to isolate weak player heads-up!',no:'Isolation raise = target a weak player.'},
+  {t:'ord',p:'Hand reading process:',items:['Observe preflop action','Narrow range on flop','Refine on turn','Decide on river'],ok:'Systematic hand reading!',no:'PF action → Flop narrow → Turn refine → River decide.'},
+  {t:'tf',p:'True or False: You should play the same range regardless of opponent.',a:false,ok:'False! Adapt to each opponent. That\'s exploitative poker.',no:'Adjust ranges based on opponent tendencies.'},
+  {t:'mc',p:'"Set mining" means:',o:['Calling with a small pair hoping to hit three of a kind','Always folding small pairs','Raising with a pair'],a:0,ok:'Set mining = cheap call with pocket pair to hit a set!',no:'Set mining = calling with small PP hoping to flop trips.'},
+  {t:'wb',p:'"Nut advantage" means having the ___ possible hand',bank:['best','worst','medium'],answer:['best'],ok:'Nut advantage = you can have the best hand, they can\'t!',no:'Nut advantage = having the absolute best combos.'},
+],
+};
+
+const MAP=[
+{s:'Buddy's Basement',ls:[
+]},
+];
+
+const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','gto-basics':'Δ','tournament':'★','tells':'◉','advanced-strategy':'♠'};
+
+function buildMap(){
+  const el=document.getElementById('mn');let h='',totalIdx=0;
+  const offsets=[0,-55,50,-35,45,-60,55,-25,10,-50,60,-30,40,-55,20];
+  const allLessons=[];
+  MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
+  
+  MAP.forEach(sec=>{
+    h+=`<div class="msec"><span class="msec-i">${sec.s.split(' ')[0]}</span><div class="msec-l">${sec.s.split(' ').slice(1).join(' ')}</div></div>`;
+    sec.ls.forEach((l,li)=>{
+      const dn=G.completed[l.id];
+      const chipCls=dn?'nc done-node':'nc f';
+      const off=offsets[totalIdx%offsets.length];
+      const sym=SYMBOLS[l.id]||'?';
+      
+      // Road segment BEFORE this node
+      if(totalIdx>0){
+        const prevOff=offsets[(totalIdx-1)%offsets.length];
+        const midX=240;
+        const px=midX+prevOff, cx=midX+off;
+        const done=allLessons[totalIdx-1]&&G.completed[allLessons[totalIdx-1].id];
+        const roadColor=done?'#4ade80':'#d4d0c8';
+        const edgeColor=done?'#16a34a':'#c4bfb4';
+        
+        h+=`<div style="height:48px;width:100%;position:relative">`;
+        h+=`<svg style="width:100%;height:100%;overflow:visible" viewBox="0 0 480 48" preserveAspectRatio="none">`;
+        // Big vertical S-curve — mostly vertical with horizontal shift
+        const cpY1=8, cpY2=40;
+        h+=`<path d="M${px},0 C${px},${cpY1} ${cx},${cpY2} ${cx},48" stroke="${roadColor}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+        h+=`<path d="M${px},0 C${px},${cpY1} ${cx},${cpY2} ${cx},48" stroke="${done?'#15803d':'#b0a898'}" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="3 5"/>`;
+        h+=`</svg></div>`;
+      }
+      
+      h+=`<div class="nd" style="transform:translateX(${off}px)" onclick="startL('${l.id}')">`;
+      h+=`<div class="${chipCls}">${dn?'<span class="sym">✓</span>':`<span class="sym">${sym}</span>`}${l.crown&&!dn?'<span class="cr">👑</span>':''}</div>`;
+      h+=`<div class="nl">${l.n}</div></div>`;
+      
+      totalIdx++;
+    });
+  });
+  el.innerHTML=h;
+}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='profile')updateProfile();if(id==='rank')updateRank();if(id==='practice')buildDrills()}
+function switchTab(tab){const map={learn:'home',practice:'practice',rank:'rank',profile:'profile'};showScreen(map[tab])}
+function startApp(){buildMap();showScreen('home');setTimeout(()=>document.getElementById('dp').classList.add('sh'),600)}
+function updateProfile(){
+  const lessons=Object.keys(G.completed).length;
+  document.getElementById('pChips').textContent=G.chips;
+  document.getElementById('pLessons').textContent=lessons;
+  document.getElementById('pStreak').textContent=G.streak;
+  let html='';MAP.forEach(sec=>{sec.ls.forEach(l=>{const dn=G.completed[l.id];html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;${dn?'':'border-bottom:1px solid var(--border)'}"><span style="font-size:20px">${dn?'✅':'⬜'}</span><span style="flex:1;font-weight:700;font-size:13px">${l.n}</span><span style="font-size:12px;color:${dn?'var(--green)':'var(--gray)'};font-weight:700">${dn?'Complete':l.q+' Qs'}</span></div>`})});
+  document.getElementById('progressList').innerHTML=html;
+}
+function updateRank(){
+  document.getElementById('rChips').textContent=G.chips;document.getElementById('rLessons').textContent=Object.keys(G.completed).length;document.getElementById('rStreak').textContent=G.streak;
+  document.getElementById('rChips2').textContent=G.chips;
+}
+function buildDrills(){
+  let html='';MAP.forEach(sec=>{sec.ls.forEach(l=>{if(L[l.id])html+=`<div style="background:var(--card);padding:14px 16px;border-radius:14px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px" onclick="startL('${l.id}')"><span style="font-size:24px">${l.ic}</span><div style="flex:1"><div style="font-weight:700;font-size:14px">${l.n}</div><div style="font-size:11px;color:var(--gray)">${l.q} questions</div></div><span style="color:var(--felt);font-weight:800;font-size:13px">Play →</span></div>`})});
+  document.getElementById('drillList').innerHTML=html;
+}
+function startPractice(){const allIds=Object.keys(L);const id=allIds[Math.floor(Math.random()*allIds.length)];startL(id)}
+function showStreak(){document.getElementById('sbg').classList.add('sh');document.getElementById('spp').classList.add('sh');document.getElementById('spn').textContent=G.streak}
+function closeStreak(){document.getElementById('sbg').classList.remove('sh');document.getElementById('spp').classList.remove('sh')}
+function renderL(n){let h='';for(let i=0;i<3;i++)h+=`<span class="pokerchip pokerchip-r" style="width:22px;height:22px;opacity:${i<n?1:.15};transform:scale(${i<n?1:.7})">♥</span>`;document.getElementById('lch').innerHTML=h}
+function startL(id){if(!L[id])return;G.lesson=id;G.q=0;G.correct=0;G.lives=3;G.sel=null;G.done=false;G.t0=Date.now();G.mSel=null;G.mMatched=[];showScreen('lesson');renderL(3);loadQ()}
+function cH(c){return `<div class="pcd ${c.c}"><span>${c.v}</span><span class="ps">${c.s}</span></div>`}
+function hH(h){return h.map(c=>cH(c)).join('')}
+
+function loadQ(){
+  const qs=L[G.lesson],q=qs[G.q];G.sel=null;G.done=false;G.mSel=null;G.mMatched=[];
+  document.getElementById('lbar').style.width=(G.q/qs.length*100)+'%';
+  document.getElementById('lfb').className='fb2';
+  document.getElementById('lbtWrap').style.display='none';
+  let html=`<div class="lpr">${q.p}</div>`;
+  if(q.d==='vs')html+=`<div class="ct"><div class="ch">${hH(q.h[0])}</div><div class="vs">VS</div><div class="ch">${hH(q.h[1])}</div></div>`;
+  else if(q.d==='1')html+=`<div class="ct"><div class="ch">${hH(q.h)}</div></div>`;
+  if(q.t==='mc'||q.t==='tf'){const opts=q.t==='tf'?['True','False']:q.o;html+='<div class="opts">';opts.forEach((o,i)=>html+=`<button class="opt" id="o${i}" onclick="selMC(${i})">${o}</button>`);html+='</div>'}
+  else if(q.t==='wb'){html+=`<div class="aa" id="ansArea"></div><div class="lsub">Tap the correct word</div><div class="wb" id="wbArea">`;const bank=[...q.bank].sort(()=>Math.random()-.5);bank.forEach((w,i)=>html+=`<button class="wt" id="w${i}" onclick="selWB(${i},'${w}')">${w}</button>`);html+='</div>';G.wbBank=bank;G.wbAns=[]}
+  else if(q.t==='ord'){html+=`<div class="aa" id="ansArea"></div><div class="lsub">Tap in correct order</div><div class="wb" id="wbArea">`;const items=[...q.items].sort(()=>Math.random()-.5);items.forEach((w,i)=>html+=`<button class="wt" id="w${i}" onclick="selOrd(${i},'${w}')">${w}</button>`);html+='</div>';G.ordItems=items;G.ordAns=[]}
+  else if(q.t==='match'){const left=q.pairs.map(p=>p[0]).sort(()=>Math.random()-.5),right=q.pairs.map(p=>p[1]).sort(()=>Math.random()-.5);html+='<div class="mp" id="mpArea">';for(let i=0;i<left.length;i++){html+=`<button class="mp-btn" id="ml${i}" onclick="selMatch('l',${i},'${left[i]}')">${left[i]}</button><button class="mp-btn" id="mr${i}" onclick="selMatch('r',${i},'${right[i]}')">${right[i]}</button>`}html+='</div>';G.mPairs=q.pairs;G.mLeft=left;G.mRight=right}
+  document.getElementById('lbd').innerHTML=html;
+}
+function selMC(i){if(G.done)return;G.sel=i;document.querySelectorAll('.opt').forEach((b,j)=>b.className='opt'+(j===i?' sel':''));checkNow()}
+function selWB(i,w){if(G.done)return;const el=document.getElementById('w'+i);if(el.classList.contains('used'))return;el.classList.add('used');G.wbAns.push({w,i});const aa=document.getElementById('ansArea');aa.innerHTML=G.wbAns.map(a=>`<span class="wt used" style="opacity:1">${a.w}</span>`).join('');aa.className='aa filled';checkNow()}
+function selOrd(i,w){if(G.done)return;const el=document.getElementById('w'+i);if(el.classList.contains('used'))return;el.classList.add('used');G.ordAns.push({w,i});const aa=document.getElementById('ansArea');aa.innerHTML=G.ordAns.map(a=>`<span class="wt" style="opacity:1;border-color:var(--felt)">${a.w}</span>`).join('');aa.className='aa filled';checkNow()}
+function selMatch(side,idx,val){
+  if(G.done)return;if(G.mMatched.includes(val))return;
+  if(!G.mSel){G.mSel={side,idx,val};document.getElementById('m'+(side==='l'?'l':'r')+idx).classList.add('sel');return}
+  if(G.mSel.side===side){document.getElementById('m'+(G.mSel.side==='l'?'l':'r')+G.mSel.idx).classList.remove('sel');G.mSel={side,idx,val};document.getElementById('m'+(side==='l'?'l':'r')+idx).classList.add('sel');return}
+  const a=G.mSel.val,b=val,isMatch=G.mPairs.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
+  if(isMatch){document.getElementById('m'+(G.mSel.side==='l'?'l':'r')+G.mSel.idx).classList.remove('sel');document.getElementById('m'+(G.mSel.side==='l'?'l':'r')+G.mSel.idx).classList.add('matched');document.getElementById('m'+(side==='l'?'l':'r')+idx).classList.add('matched');G.mMatched.push(a,b);G.mSel=null;
+    if(G.mMatched.length===G.mPairs.length*2){G.correct++;G.done=true;const q=L[G.lesson][G.q];showFb(true,'All matched! 🎉',q.ok);addXP();document.getElementById('lbar').style.width=((G.q+1)/L[G.lesson].length*100)+'%';setTimeout(nextQ,1500)}
+  }else{const e1=document.getElementById('m'+(G.mSel.side==='l'?'l':'r')+G.mSel.idx),e2=document.getElementById('m'+(side==='l'?'l':'r')+idx);e1.classList.remove('sel');e1.classList.add('wrong');e2.classList.add('wrong');G.lives=Math.max(0,G.lives-1);renderL(G.lives);setTimeout(()=>{e1.classList.remove('wrong');e2.classList.remove('wrong')},500);G.mSel=null}
+}
+
+function checkNow(){
+  const qs=L[G.lesson],q=qs[G.q];let ok=false;
+  if(q.t==='mc')ok=G.sel===q.a;
+  else if(q.t==='tf')ok=(G.sel===0&&q.a===true)||(G.sel===1&&q.a===false);
+  else if(q.t==='wb')ok=JSON.stringify(G.wbAns.map(a=>a.w))===JSON.stringify(q.answer);
+  else if(q.t==='ord')ok=JSON.stringify(G.ordAns.map(a=>a.w))===JSON.stringify(q.items);
+  if(!ok)return; // not checked yet for some types
+  
+  G.correct++;G.done=true;
+  // Color correct
+  if(q.t==='mc'||q.t==='tf'){const a=q.t==='tf'?(q.a?0:1):q.a;document.getElementById('o'+a).className='opt ok';document.querySelectorAll('.opt').forEach(b=>b.disabled=true)}
+  else if(q.t==='wb'){G.wbAns.forEach(a=>{const el=document.getElementById('w'+a.i);if(el)el.classList.add('ok')})}
+  else if(q.t==='ord'){G.ordAns.forEach(a=>{const el=document.getElementById('w'+a.i);if(el)el.classList.add('ok')})}
+  showFb(true,'Correct!',q.ok);addXP();
+  document.getElementById('lbar').style.width=((G.q+1)/qs.length*100)+'%';
+  setTimeout(nextQ,1200); // auto-advance!
+}
+
+function onBtn(){/* only for wrong answers now */
+  if(!G.done)return;
+  const q=L[G.lesson][G.q];
+  // Show correct answer
+  if(q.t==='mc'||q.t==='tf'){const a=q.t==='tf'?(q.a?0:1):q.a;document.getElementById('o'+a).className='opt ok';if(G.sel!==null&&G.sel!==a)document.getElementById('o'+G.sel).className='opt no';document.querySelectorAll('.opt').forEach(b=>b.disabled=true)}
+  else if(q.t==='wb'||q.t==='ord'){const ans=q.t==='wb'?q.answer:q.items;const area=document.getElementById('ansArea');area.innerHTML=ans.map(w=>`<span class="wt ok" style="opacity:1">${w}</span>`).join('')}
+  G.done=true;setTimeout(nextQ,1500);
+}
+
+function showFb(ok,t,txt){const fb=document.getElementById('lfb');fb.className='fb2 sh '+(ok?'ok':'no');document.getElementById('lfi').textContent=ok?'🪙':'💔';document.getElementById('lft').textContent=t;document.getElementById('lfp').textContent=txt}
+function addXP(){for(let i=0;i<3;i++){const p=document.createElement('div');p.className='ptc';p.textContent='+10 🪙';p.style.left=(35+Math.random()*30)+'%';p.style.top='40%';document.body.appendChild(p);setTimeout(()=>p.remove(),800)}}
+
+function nextQ(){
+  G.q++;const qs=L[G.lesson];
+  if(G.q>=qs.length||G.lives<=0){showComp();return}
+  loadQ();
+}
+function quitL(){showScreen('home')}
+function showComp(){
+  const total=L[G.lesson].length,xp=G.correct*10;G.xp+=xp;G.chips+=xp;G.streak++;G.completed[G.lesson]=true;
+  const acc=Math.round(G.correct/total*100),time=Math.round((Date.now()-G.t0)/1000),perfect=acc===100;
+  document.getElementById('ce').textContent=G.lives===0?'💪':perfect?'🌟':'🃏';
+  document.getElementById('ctt').textContent=G.lives===0?'Try Again!':perfect?'PERFECT HAND!':'Hand Complete!';
+  document.getElementById('csb').textContent=G.lives===0?'Next one\'s yours':perfect?'Every call right!':'Building your stack';
+  document.getElementById('cx').textContent=xp;document.getElementById('ca').textContent=acc+'%';document.getElementById('ctm').textContent=time+'s';
+  document.getElementById('cmsg').textContent=`🔥 ${G.streak} day streak!${perfect?' 🌟 PERFECT!':''}`;
+  showScreen('complete');setTimeout(()=>{document.getElementById('cbrf').style.width=acc+'%'},300);
+  const t=document.getElementById('xpt');t.textContent=`+${xp} chips 🪙`;t.classList.add('sh');setTimeout(()=>t.classList.remove('sh'),1500);
+}
+function finishL(){buildMap();showScreen('home')}
+</script>
 </body>
 </html>
