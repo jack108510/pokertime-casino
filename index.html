@@ -11,7 +11,7 @@
 body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-x:hidden;display:flex;justify-content:center}
 .screen{display:none;min-height:100vh;width:100%;max-width:430px;margin:0 auto;position:relative}.screen.active{display:flex;flex-direction:column}
 .felt-bg{background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px),repeating-linear-gradient(-45deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px),var(--cream)}
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:20}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0806;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;z-index:20;flex-shrink:0}
 .tb{display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;cursor:pointer;padding:4px 10px;border-radius:10px}.tb:active{transform:scale(.93)}
 /* Real poker chips */
 .pokerchip{display:inline-flex;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;font-weight:900;font-size:8px;position:relative;border:3px dashed rgba(255,255,255,.4);box-shadow:0 2px 0 rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.2)}
@@ -20,7 +20,7 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 .pokerchip-g{background:linear-gradient(135deg,#fbbf24,#d97706);color:#fff}
 .pokerchip-b{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
 .pokerchip-k{background:linear-gradient(135deg,#1a1a2e,#0f172a);color:#fff}
-.bnav{display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--border);position:sticky;bottom:0;z-index:20}
+.bnav{display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));background:#0a0806;border-top:1px solid rgba(255,255,255,0.06);position:sticky;bottom:0;z-index:20;flex-shrink:0}
 .nb{display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;padding:4px 16px;transition:.2s}
 .nb.act .nb-i{filter:invert(39%) sepia(85%) saturate(500%) hue-rotate(88deg) brightness(95%)}.nb .nb-i{font-size:24px;height:28px;display:flex;align-items:center;justify-content:center;filter:grayscale(1) opacity(.3)}.nb.act .nb-l{color:var(--felt)}
 .nb:active{transform:scale(.9)}.nb-l{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gray)}
@@ -408,16 +408,16 @@ function buildMap(){
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  // Staggered: each lesson slightly lower than the previous
-  // Table 1 (blue rug): lessons 1-2
-  // Table 2 (red rug): lesson 3
-  // Table 3 (yellow rug): lesson 4
-  // Table 4 (wood floor): lessons 5-7
+  // Buttons on the table surfaces, staggered down
+  // Table 1 (blue rug, y~17-24): Card Values, Hand Rankings
+  // Table 2 (red rug, y~35-42): Pot Odds, Position Play  
+  // Table 3 (yellow rug, y~53-60): Betting Basics
+  // Table 4 (wood floor, y~68-76): Bluffing 101, Range Reading, Pre-flop
   const positions=[
-    {x:42,y:16},{x:58,y:20},
-    {x:50,y:36},
-    {x:50,y:54},
-    {x:38,y:68},{x:50,y:72},{x:62,y:76},
+    {x:42,y:18},{x:58,y:23},
+    {x:42,y:37},{x:58,y:41},
+    {x:50,y:56},
+    {x:40,y:70},{x:50,y:74},{x:62,y:78},
   ];
   
   let posIdx=0;
