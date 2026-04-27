@@ -422,7 +422,7 @@ function buildMap(){
   MAP.forEach((sec,si)=>{
     sec.ls.forEach((l,li)=>{
       const dn=G.completed[l.id];
-      const prevDone=posIdx===0||G.completed[allLessons[posIdx-1]?.id];
+      const prevDone=true;
       const locked=!prevDone&&!dn;
       const pos=positions[posIdx]||{x:50,y:50};
       const sym=SYMBOLS[l.id]||'?';
