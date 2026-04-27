@@ -414,12 +414,16 @@ function buildMap(){
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  // 4 tables, 4 lessons each, positioned on the poker room map
+  // 4 tables, 4 lessons each - lessons ON the table surfaces
+  // Table 1 (top table, blue rug): center around x:50 y:23
+  // Table 2 (second table, red rug): center around x:50 y:39
+  // Table 3 (third table, yellow rug): center around x:50 y:55
+  // Table 4 (bottom table, wood floor): center around x:50 y:72
   const positions=[
-    {x:28,y:33},{x:50,y:31},{x:72,y:33},{x:50,y:38},
-    {x:28,y:46},{x:50,y:44},{x:72,y:46},{x:50,y:51},
-    {x:28,y:57},{x:50,y:55},{x:72,y:57},{x:50,y:61},
-    {x:28,y:69},{x:50,y:67},{x:72,y:69},{x:50,y:73},
+    {x:38,y:21},{x:62,y:21},{x:42,y:26},{x:58,y:26},
+    {x:38,y:37},{x:62,y:37},{x:42,y:42},{x:58,y:42},
+    {x:38,y:53},{x:62,y:53},{x:42,y:58},{x:58,y:58},
+    {x:38,y:70},{x:62,y:70},{x:42,y:75},{x:58,y:75},
   ];
   
   let posIdx=0;
