@@ -40,7 +40,7 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 /* Map */
 .ms2{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}.mi{display:flex;flex-direction:column;align-items:center;padding:28px 0 90px}
 .msec{text-align:center;margin:20px 0 14px}.msec-i{font-size:22px;display:block;margin-bottom:2px}.msec-l{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--felt)}
-.nd{display:flex;flex-direction:column;align-items:center;z-index:2;cursor:pointer;transition:.15s}.nd:active{transform:scale(.92)}.nd.r{margin-right:-60px}.nd.l{margin-left:-60px}
+.nd{display:flex;flex-direction:column;align-items:center;z-index:2;cursor:pointer;transition:.15s}.nd:active{transform:scale(.92)}
 /* Poker chip nodes */
 .nc{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0;font-weight:900;position:relative;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.15),inset 0 2px 4px rgba(255,255,255,.25);transition:transform .2s;letter-spacing:-1px}
 .nc .sym{font-size:22px;font-family:'Nunito',sans-serif;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
@@ -52,6 +52,26 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark);o
 .nc.done-node{background:linear-gradient(145deg,#4ade80,#16a34a)!important}
 .nc .cr{position:absolute;top:-10px;right:-6px;font-size:18px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
 .nl{font-size:12px;font-weight:800;margin-top:8px;text-align:center;max-width:100px}.ns{font-size:10px;color:var(--gray);font-weight:600}
+
+/* Map nodes — small dots on the background */
+.map-node{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:.2s;z-index:5}
+.map-node:active{transform:translateY(-50%) scale(.9)}
+.map-node .node-label{font-size:9px;font-weight:800;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.map-node .node-check,.map-node .node-lock,.map-node .node-sym{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;transition:.2s}
+.map-node.completed .node-check{background:linear-gradient(145deg,#4ade80,#16a34a);color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.4)}
+.map-node.completed .node-label{color:#4ade80}
+.map-node.available .node-sym{background:rgba(255,255,255,0.9);color:#1a1a2e;box-shadow:0 0 12px rgba(255,255,255,0.3);animation:pulse 2s infinite}
+.map-node.available .node-label{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
+.map-node.locked .node-lock{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.3);font-size:12px}
+.map-node.locked .node-label{color:rgba(255,255,255,0.25)}
+.map-node.locked{cursor:default}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px rgba(255,255,255,0.2)}50%{box-shadow:0 0 20px rgba(255,255,255,0.5)}}
+.map-row{position:relative}
+
+/* Basement background for the whole map */
+.ms2{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:url('basement-bg.jpg') center top/cover no-repeat #0a0a0a}
+.ms2::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,3,1,0.6);pointer-events:none;z-index:1}
+.mi{position:relative;z-index:2}
 .cn{height:8px;width:100%;position:relative}.cl{display:none}
 /* Candy crush style winding path */
 .path-wrap{position:relative;width:100%;height:16px;margin:4px 0}
@@ -414,41 +434,81 @@ const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','posit
 
 function buildMap(){
   const el=document.getElementById('mn');let h='',totalIdx=0;
-  const offsets=[0,-55,50,-35,45,-60,55,-25,10,-50,60,-30,40,-55,20];
+  // Position each lesson at specific points on the background image
+  // Using percentage-based positions for responsiveness
+  const positions=[
+    // Basement
+    {x:30,y:15},{x:65,y:28},{x:25,y:42},{x:70,y:55},
+    // Local Card Room  
+    {x:35,y:68},{x:60,y:72},{x:20,y:80},{x:75,y:85},
+    // Downtown Casino
+    {x:45,y:90},{x:70,y:93},{x:25,y:96},{x:55,y:99},{x:40,y:102},
+    // Vegas Strip
+    {x:30,y:108},{x:65,y:112},{x:35,y:117},{x:60,y:122},
+    // Macau / Monte Carlo
+    {x:45,y:128},{x:25,y:133},{x:65,y:138},{x:45,y:143},
+  ];
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  MAP.forEach(sec=>{
-    h+=`<div class="msec"><span class="msec-i">${sec.s.split(' ')[0]}</span><div class="msec-l">${sec.s.split(' ').slice(1).join(' ')}</div></div>`;
+  // Build one big map with the basement background
+  // Each tier gets a different background section
+  let currentY = 0;
+  const tierBgs = ['basement-bg.jpg','basement-bg.jpg','basement-bg.jpg','basement-bg.jpg','basement-bg.jpg'];
+  const tierColors = ['#c89b3c','#d4a76a','#e84393','#f8d868','#7ef9ff'];
+  const tierBgColors = ['rgba(10,8,4,0.85)','rgba(18,14,10,0.85)','rgba(10,9,20,0.85)','rgba(20,15,24,0.85)','rgba(8,14,22,0.85)'];
+  
+  let posIdx = 0;
+  MAP.forEach((sec,si)=>{
+    // Tier header
+    const emoji = sec.s.split(' ')[0];
+    const name = sec.s.split(' ').slice(1).join(' ');
+    h+=`<div class="msec" style="margin-top:${si===0?'20px':'40px'}"><span class="msec-i">${emoji}</span><div class="msec-l" style="color:${tierColors[si]}">${name}</div></div>`;
+    
     sec.ls.forEach((l,li)=>{
-      const dn=G.completed[l.id];
-      const chipCls=dn?'nc done-node':'nc f';
-      const off=offsets[totalIdx%offsets.length];
-      const sym=SYMBOLS[l.id]||'?';
+      const dn = G.completed[l.id];
+      // Check if previous lesson is completed (for unlock logic)
+      const prevDone = posIdx === 0 || G.completed[allLessons[posIdx-1]?.id];
+      const locked = !prevDone && !dn;
       
-      // Road segment BEFORE this node
-      if(totalIdx>0){
-        const prevOff=offsets[(totalIdx-1)%offsets.length];
-        const midX=240;
-        const px=midX+prevOff, cx=midX+off;
-        const done=allLessons[totalIdx-1]&&G.completed[allLessons[totalIdx-1].id];
-        const roadColor=done?'#4ade80':'#d4d0c8';
-        const edgeColor=done?'#16a34a':'#c4bfb4';
-        
-        h+=`<div style="height:48px;width:100%;position:relative">`;
-        h+=`<svg style="width:100%;height:100%;overflow:visible" viewBox="0 0 480 48" preserveAspectRatio="none">`;
-        // Big vertical S-curve — mostly vertical with horizontal shift
-        const cpY1=8, cpY2=40;
-        h+=`<path d="M${px},0 C${px},${cpY1} ${cx},${cpY2} ${cx},48" stroke="${roadColor}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
-        h+=`<path d="M${px},0 C${px},${cpY1} ${cx},${cpY2} ${cx},48" stroke="${done?'#15803d':'#b0a898'}" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="3 5"/>`;
-        h+=`</svg></div>`;
+      const pos = positions[posIdx] || {x:50,y:posIdx*7};
+      const sym = SYMBOLS[l.id]||'?';
+      
+      // Determine node state
+      let nodeClass, nodeStyle;
+      if(dn){
+        nodeClass = 'map-node completed';
+        nodeStyle = `left:${pos.x}%;`;
+      } else if(prevDone){
+        nodeClass = 'map-node available';
+        nodeStyle = `left:${pos.x}%;`;
+      } else {
+        nodeClass = 'map-node locked';
+        nodeStyle = `left:${pos.x}%;`;
       }
       
-      h+=`<div class="nd" style="transform:translateX(${off}px)" onclick="startL('${l.id}')">`;
-      h+=`<div class="${chipCls}">${dn?'<span class="sym">✓</span>':`<span class="sym">${sym}</span>`}${l.crown&&!dn?'<span class="cr">👑</span>':''}</div>`;
-      h+=`<div class="nl">${l.n}</div></div>`;
+      h+=`<div class="map-row" style="position:relative;height:52px;margin:6px 0">`;
       
-      totalIdx++;
+      // Connector line from previous
+      if(posIdx > 0){
+        const prevPos = positions[posIdx-1] || {x:50};
+        const prevDone2 = G.completed[allLessons[posIdx-1]?.id];
+        const lineColor = prevDone2 ? '#4ade80' : '#444';
+        h+=`<svg style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none"><line x1="${prevPos.x}%" y1="0" x2="${pos.x}%" y2="100%" stroke="${lineColor}" stroke-width="2" stroke-dasharray="${prevDone2?'':'4 4'}" opacity="0.5"/></svg>`;
+      }
+      
+      h+=`<div class="${nodeClass}" style="${nodeStyle}" ${!locked?`onclick="startL('${l.id}')"`:''}>`;
+      if(dn){
+        h+=`<span class="node-check">✓</span>`;
+      } else if(locked){
+        h+=`<span class="node-lock">🔒</span>`;
+      } else {
+        h+=`<span class="node-sym">${sym}</span>`;
+      }
+      h+=`<span class="node-label">${l.n}</span>`;
+      h+=`</div></div>`;
+      
+      posIdx++;
     });
   });
   el.innerHTML=h;
