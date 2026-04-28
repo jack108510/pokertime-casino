@@ -270,6 +270,10 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 <div class="nb act"><div class="nb-i">👤</div><div class="nb-l">Profile</div></div>
 </div></div>
 
+<div id="module" class="screen">
+<div class="lt2"><div class="lx" onclick="showScreen('home')">✕</div><div style="flex:1;text-align:center;font-weight:800;font-size:15px" id="modTitle">Module</div><div style="width:32px"></div></div>
+<div style="flex:1;overflow-y:auto;padding:16px" id="modBody"></div>
+</div>
 <div id="lesson" class="screen">
 <div class="lt2"><div class="lx" onclick="quitL()">✕</div><div class="lbw"><div class="lbf" id="lbar"></div></div><div class="lcs" id="lch"></div></div>
 <div class="lb" id="lbd"></div>
@@ -417,19 +421,25 @@ const L={
 };
 
 const MAP=[
-{s:'',ls:[
+{s:'',lvl:'LEVEL 1',ls:[
 {id:'card-values',ic:'A',n:'Card Values',c:'f',q:8},
 {id:'hand-rankings',ic:'K',n:'Hand Rankings',c:'g',q:10,crown:true},
 {id:'pot-odds',ic:'%',n:'Pot Odds',c:'b',q:10},
 {id:'position',ic:'P',n:'Position Play',c:'p',q:8},
 {id:'betting-basics',ic:'$',n:'Betting Basics',c:'o',q:8},
 {id:'bluffing',ic:'?',n:'Bluffing 101',c:'rd',q:8},
+]},
+{s:'',lvl:'LEVEL 2',ls:[
 {id:'ranges',ic:'R',n:'Range Reading',c:'b',q:8},
 {id:'preflop',ic:'PF',n:'Pre-flop Strategy',c:'f',q:8},
+{id:'gto-basics',ic:'Δ',n:'GTO Basics',c:'p',q:8},
+{id:'tournament',ic:'★',n:'Tournament Play',c:'o',q:8},
+{id:'tells',ic:'👁',n:'Reading Tells',c:'rd',q:8},
+{id:'advanced-strategy',ic:'🎯',n:'Advanced Strategy',c:'g',q:10},
 ]},
 ];
 
-const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','preflop':'PF','c-bet':'CB','bet-sizing':'BS','gto-basics':'Δ','tournament':'★','adv-bluff':'?!','exploit':'EX','psychology':'🧠','final-table':'♠'};
+const SYMBOLS={'card-values':'A♠','hand-rankings':'♛','pot-odds':'÷','position':'◎','betting-basics':'$$','bluffing':'?!','ranges':'⊞','preflop':'PF','c-bet':'CB','bet-sizing':'BS','gto-basics':'Δ','tournament':'★','adv-bluff':'?!','exploit':'EX','psychology':'🧠','final-table':'♠','tells':'👁','advanced-strategy':'🎯'};
 
 function buildMap(){
   const el=document.getElementById('mn');let h='';
@@ -445,11 +455,19 @@ function buildMap(){
     {x:40.2,y:5.5},{x:57.6,y:9.0},
     {x:34.1,y:20.0},{x:45.8,y:23.5},
     {x:55.5,y:37.0},{x:67.2,y:41.5},
-    {x:43.6,y:62.0},{x:63.3,y:68.0},
+    // Level 2 — Table 4 (bottom wood floor)
+    {x:38,y:60},{x:68,y:60},
+    {x:38,y:68},{x:68,y:68},
+    {x:45,y:76},{x:62,y:76},
   ];
   
   let posIdx=0;
   MAP.forEach((sec,si)=>{
+    // Level label
+    if(sec.lvl){
+      const labelY=positions[posIdx]?positions[posIdx].y-4:30;
+      h+=`<div style="position:absolute;left:50%;top:${labelY}%;transform:translateX(-50%);font-size:9px;font-weight:800;letter-spacing:3px;color:rgba(212,175,55,0.6);z-index:0;pointer-events:none">${sec.lvl}</div>`;
+    }
     sec.ls.forEach((l,li)=>{
       const dn=G.completed[l.id];
       const prevDone=true;
