@@ -426,16 +426,16 @@ function buildMap(){
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  // Positions calculated from actual image (887x1774)
-  // Table 1 center: 49.9%, 17.5%
-  // Table 2 center: 49.9%, 38.3%
-  // Table 3 center: 49.9%, 55.8%
-  // Table 4 center: 49.9%, 73.3%
+  // Exact positions from pixel analysis of the 887x1774 image
+  // Table 1: center 48.9%,9.8% (72% x 9%) — top blue rug
+  // Table 2: center 40.0%,24.4% (49% x 9%) — red rug, left
+  // Table 3: center 61.3%,42.1% (49% x 12%) — yellow rug, right
+  // Table 4: center 53.4%,73.5% (82% x 23%) — bottom wood floor
   const positions=[
-    {x:42,y:15.5},{x:58,y:19.5},
-    {x:42,y:36.3},{x:58,y:40.3},
-    {x:42,y:53.8},{x:58,y:57.8},
-    {x:42,y:71.3},{x:58,y:75.3},
+    {x:40.2,y:8.0},{x:57.6,y:11.7},
+    {x:34.1,y:22.6},{x:45.8,y:26.2},
+    {x:55.5,y:39.7},{x:67.2,y:44.4},
+    {x:43.6,y:68.8},{x:63.3,y:78.2},
   ];
   
   let posIdx=0;
