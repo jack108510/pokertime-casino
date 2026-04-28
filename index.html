@@ -426,16 +426,16 @@ function buildMap(){
   const allLessons=[];
   MAP.forEach(sec=>sec.ls.forEach(l=>allLessons.push(l)));
   
-  // Buttons on the table surfaces, staggered down
-  // Table 1 (blue rug, y~17-24): Card Values, Hand Rankings
-  // Table 2 (red rug, y~35-42): Pot Odds, Position Play  
-  // Table 3 (yellow rug, y~53-60): Betting Basics
-  // Table 4 (wood floor, y~68-76): Bluffing 101, Range Reading, Pre-flop
+  // Positions calculated from actual image (887x1774)
+  // Table 1 center: 49.9%, 17.5%
+  // Table 2 center: 49.9%, 38.3%
+  // Table 3 center: 49.9%, 55.8%
+  // Table 4 center: 49.9%, 73.3%
   const positions=[
-    {x:42,y:18},{x:58,y:23},
-    {x:42,y:37},{x:58,y:41},
-    {x:50,y:56},
-    {x:40,y:70},{x:50,y:74},{x:62,y:78},
+    {x:42,y:15.5},{x:58,y:19.5},
+    {x:42,y:36.3},{x:58,y:40.3},
+    {x:42,y:53.8},{x:58,y:57.8},
+    {x:42,y:71.3},{x:58,y:75.3},
   ];
   
   let posIdx=0;
