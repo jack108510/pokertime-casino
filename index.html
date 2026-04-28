@@ -290,7 +290,17 @@ body{font-family:'Nunito',sans-serif;background:#000;color:var(--dark);overflow-
 <div class="sbg" id="sbg" onclick="closeStreak()"></div>
 <div class="spp" id="spp"><div style="font-size:48px;margin-bottom:4px">🔥</div><div class="spn" id="spn">0</div><div class="spl">DAY STREAK</div></div>
 <script>
-const G={xp:0,lives:3,streak:0,chips:250,q:0,correct:0,sel:null,done:false,t0:0,lesson:null,completed:{},mSel:null,mMatched:[]};
+const G={xp:0,lives:3,streak:0,chips:250,q:0,correct:0,sel:null,done:false,t0:0,lesson:null,completed:{},mSel:null,mMatched:[],srs:{},lastStudyDay:null};
+
+const DAY=24*60*60*1000;
+const SRS_KEY='pokertime_save_v2';
+function todayKey(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+function saveG(){localStorage.setItem(SRS_KEY,JSON.stringify({xp:G.xp,streak:G.streak,chips:G.chips,completed:G.completed,srs:G.srs,lastStudyDay:G.lastStudyDay}));}
+function loadG(){try{const raw=localStorage.getItem(SRS_KEY);if(!raw)return;const d=JSON.parse(raw);G.xp=d.xp||0;G.streak=d.streak||0;G.chips=d.chips||250;G.completed=d.completed||{};G.srs=d.srs||{};G.lastStudyDay=d.lastStudyDay||null;}catch(e){}}
+function ensureSrs(id){if(!G.srs[id])G.srs[id]={interval:1,ease:2.5,due:0,reps:0};return G.srs[id];}
+function isDue(id){const r=ensureSrs(id);return !r.due||Date.now()>=r.due;}
+function scheduleLesson(id,accuracy){const r=ensureSrs(id);if(accuracy>=85){r.reps=(r.reps||0)+1;r.ease=Math.min(3,Math.max(1.3,(r.ease||2.5)+0.1));r.interval=r.reps===1?1:r.reps===2?3:Math.round((r.interval||1)*r.ease);}else{r.reps=0;r.ease=Math.max(1.3,(r.ease||2.5)-0.2);r.interval=1;}r.due=Date.now()+r.interval*DAY;}
+
 const L={
 'card-values':[
   {t:'mc',p:'Which card wins?',d:'vs',h:[[{v:'A',s:'♠',c:'bk'},{v:'K',s:'♥',c:'r'}],[{v:'K',s:'♠',c:'bk'},{v:'Q',s:'♥',c:'r'}]],o:['Ace-King wins','King-Queen wins','Tie'],a:0,ok:'Ace is the highest card in poker!',no:'Ace beats King every time.'},
@@ -502,7 +512,7 @@ function buildMap(){
 }
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='profile')updateProfile();if(id==='rank')updateRank();if(id==='practice')buildDrills()}
 function switchTab(tab){const map={learn:'home',practice:'practice',rank:'rank',profile:'profile'};showScreen(map[tab])}
-function startApp(){buildMap();showScreen('home');setTimeout(()=>document.getElementById('dp').classList.add('sh'),600)}
+function startApp(){loadG();Object.keys(L).forEach(ensureSrs);buildMap();showScreen('home');setTimeout(()=>document.getElementById('dp').classList.add('sh'),600)}
 function updateProfile(){
   const lessons=Object.keys(G.completed).length;
   document.getElementById('pChips').textContent=G.chips;
@@ -516,10 +526,10 @@ function updateRank(){
   document.getElementById('rChips2').textContent=G.chips;
 }
 function buildDrills(){
-  let html='';MAP.forEach(sec=>{sec.ls.forEach(l=>{if(L[l.id])html+=`<div style="background:var(--card);padding:14px 16px;border-radius:14px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px" onclick="startL('${l.id}')"><span style="font-size:24px">${l.ic}</span><div style="flex:1"><div style="font-weight:700;font-size:14px">${l.n}</div><div style="font-size:11px;color:var(--gray)">${l.q} questions</div></div><span style="color:var(--felt);font-weight:800;font-size:13px">Play →</span></div>`})});
+  let html='';MAP.forEach(sec=>{sec.ls.forEach(l=>{if(L[l.id])html+=`<div style="background:var(--card);padding:14px 16px;border-radius:14px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px" onclick="startL('${l.id}')"><span style="font-size:24px">${l.ic}</span><div style="flex:1"><div style="font-weight:700;font-size:14px">${l.n}</div><div style="font-size:11px;color:var(--gray)">${l.q} questions • ${isDue(l.id)?'Due now':'Review later'}</div></div><span style="color:var(--felt);font-weight:800;font-size:13px">Play →</span></div>`})});
   document.getElementById('drillList').innerHTML=html;
 }
-function startPractice(){const allIds=Object.keys(L);const id=allIds[Math.floor(Math.random()*allIds.length)];startL(id)}
+function startPractice(){const allIds=Object.keys(L);const due=allIds.filter(isDue);const pool=due.length?due:allIds.sort((a,b)=>ensureSrs(a).due-ensureSrs(b).due).slice(0,4);const id=pool[Math.floor(Math.random()*pool.length)];startL(id)}
 function showStreak(){document.getElementById('sbg').classList.add('sh');document.getElementById('spp').classList.add('sh');document.getElementById('spn').textContent=G.streak}
 function closeStreak(){document.getElementById('sbg').classList.remove('sh');document.getElementById('spp').classList.remove('sh')}
 function renderL(n){let h='';for(let i=0;i<3;i++)h+=`<span class="pokerchip pokerchip-r" style="width:22px;height:22px;opacity:${i<n?1:.15};transform:scale(${i<n?1:.7})">♥</span>`;document.getElementById('lch').innerHTML=h}
@@ -591,8 +601,8 @@ function nextQ(){
 }
 function quitL(){showScreen('home')}
 function showComp(){
-  const total=L[G.lesson].length,xp=G.correct*10;G.xp+=xp;G.chips+=xp;G.streak++;G.completed[G.lesson]=true;
-  const acc=Math.round(G.correct/total*100),time=Math.round((Date.now()-G.t0)/1000),perfect=acc===100;
+  const total=L[G.lesson].length,xp=G.correct*10;G.xp+=xp;G.chips+=xp;const day=todayKey();if(G.lastStudyDay!==day){G.streak++;G.lastStudyDay=day;}G.completed[G.lesson]=true;
+  const acc=Math.round(G.correct/total*100),time=Math.round((Date.now()-G.t0)/1000),perfect=acc===100;scheduleLesson(G.lesson,acc);saveG();
   document.getElementById('ce').textContent=G.lives===0?'💪':perfect?'🌟':'🃏';
   document.getElementById('ctt').textContent=G.lives===0?'Try Again!':perfect?'PERFECT HAND!':'Hand Complete!';
   document.getElementById('csb').textContent=G.lives===0?'Next one\'s yours':perfect?'Every call right!':'Building your stack';
